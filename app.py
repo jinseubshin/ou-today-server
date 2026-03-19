@@ -40,7 +40,7 @@ def kakao_login():
             "client_id": KAKAO_REST_API_KEY.strip(),
             "redirect_uri": redirect_uri.strip(),
             "code": code.strip()
-        }, headers={"Content-Type": "application/x-form-urlencoded"})
+        }, headers={"Content-Type": "application/x-www-form-urlencoded"})
         
         if res.status_code != 200:
             # 에러 나면 로그에 상세히 찍히게 함
