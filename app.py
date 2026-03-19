@@ -69,7 +69,7 @@ def kakao_login():
     try:
         data = request.json
         code = data.get('code')
-        redirect_uri = data.get('redirect_uri')
+        redirect_uri = "https://fdrxhcpq.gensparkspace.com/kakao-callback.html"
         
         if not code or not redirect_uri:
             return jsonify({"error": "code와 redirect_uri는 필수입니다"}), 400
