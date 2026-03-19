@@ -1,4 +1,3 @@
-# O.U 통합 백엔드 (카카오 + 네이버 준비)
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -7,7 +6,6 @@ import os
 
 app = Flask(__name__)
 
-# 1. CORS 설정: 젠스파크 주소를 확실하게 허용
 CORS(app, resources={
     r"/api/*": {
         "origins": ["https://fdrxhcpq.gensparkspace.com"],
@@ -16,49 +14,39 @@ CORS(app, resources={
     }
 })
 
-# 2. API 키 설정 (네이버는 나중에 키만 넣으세요)
 KAKAO_REST_API_KEY = "c4c25da779364681dc4df48c81060f34"
-# NAVER_CLIENT_ID = "여기에_나중에_넣기"
-# NAVER_CLIENT_SECRET = "여기에_나중에_넣기"
-
-users_db = {} # 임시 DB (서버 재시작시 초기화됨)
+users_db = {}
 
 def save_or_update_user(user_info):
     uid = user_info['kakao_id']
     if uid in users_db:
         users_db[uid].update(user_info)
-        users_db[uid]["last_login"] = datetime.utcnow().isoformat()
     else:
-        user_info["created_at"] = datetime.utcnow().isoformat()
         users_db[uid] = user_info
     return users_db[uid]
-
-@app.route('/health', methods=['GET'])
-def health():
-    return jsonify({"status": "ok", "time": datetime.utcnow().isoformat()})
 
 @app.route('/api/auth/kakao', methods=['POST', 'OPTIONS'])
 def kakao_login():
     if request.method == 'OPTIONS': return '', 204
-    
     try:
         data = request.json
         code = data.get('code')
-        # ⭐ 카카오 개발자 센터와 100% 일치해야 함!
+        # ⭐ 주소 끝에 공백 없게 철저히 고정
         redirect_uri = "https://fdrxhcpq.gensparkspace.com/kakao-callback.html"
         
-        # 1. 토큰 요청
+        # 1. 카카오 토큰 요청 (AI가 말한 '비밀번호 제거' 버전)
         res = requests.post("https://kauth.kakao.com/oauth/token", data={
             "grant_type": "authorization_code",
-            "client_id": KAKAO_REST_API_KEY,
-            "redirect_uri": redirect_uri,
-            "code": code
+            "client_id": KAKAO_REST_API_KEY.strip(),
+            "redirect_uri": redirect_uri.strip(),
+            "code": code.strip()
         }, headers={"Content-Type": "application/x-form-urlencoded"})
         
         if res.status_code != 200:
-            return jsonify({"error": "카카오 토큰 발급 실패", "detail": res.json()}), 400
+            # 에러 나면 로그에 상세히 찍히게 함
+            print(f"[Kakao Error] {res.json()}")
+            return jsonify({"error": "토큰 발급 실패", "detail": res.json()}), 400
         
-        # 2. 정보 요청
         token = res.json().get("access_token")
         u_res = requests.get("https://kapi.kakao.com/v2/user/me", headers={
             "Authorization": f"Bearer {token}"
