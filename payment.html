@@ -135,7 +135,8 @@
       this.textContent = '결제창 열기 중...';
 
       try {
-        const customerKey = generateCustomerKey();
+        const kakaoId = localStorage.getItem('kakao_id') || 'guest';
+        const customerKey = `ou_${kakaoId}`;
         localStorage.setItem('ou_customer_key', customerKey);
 
         const tossPayments = TossPayments(TOSS_CLIENT_KEY);
