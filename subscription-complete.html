@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>구독 신청 완료 | O.U 오늘의 유정란</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root{--deep-green:#2D5016;--warm-yellow:#F5C842;--light-bg:#F8F6F0;--text-gray:#888;--text-dark:#222;--border-light:#e8e8e8;}
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{font-family:'Noto Sans KR',sans-serif;background:var(--light-bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;}
+    .card{background:white;border-radius:24px;padding:3rem 2.5rem;max-width:520px;width:100%;box-shadow:0 4px 24px rgba(0,0,0,.08);text-align:center;}
+    .spinner{width:60px;height:60px;border:5px solid var(--light-bg);border-top-color:var(--warm-yellow);border-radius:50%;animation:spin .9s linear infinite;margin:0 auto 1.5rem;}
+    @keyframes spin{to{transform:rotate(360deg);}}
+    #loadingState h2{font-size:1.4rem;font-weight:800;color:var(--deep-green);margin-bottom:.5rem;}
+    #loadingState p{color:var(--text-gray);font-size:.95rem;}
+    #successState,#errorState{display:none;}
+    .big-icon{font-size:4rem;margin-bottom:1rem;}
+    h2.ok{font-size:1.8rem;font-weight:900;color:var(--deep-green);margin-bottom:.5rem;}
+    h2.err{font-size:1.5rem;font-weight:800;color:#e53935;margin-bottom:.5rem;}
+    .subtitle{color:var(--text-gray);margin-bottom:2rem;font-size:.95rem;}
+    .order-summary{background:var(--light-bg);border-radius:14px;padding:1.5rem;margin-bottom:2rem;text-align:left;}
+    .order-row{display:flex;justify-content:space-between;padding:.6rem 0;border-bottom:1px solid var(--border-light);font-size:.92rem;}
+    .order-row:last-child{border-bottom:none;font-weight:800;font-size:1rem;padding-top:.8rem;}
+    .order-row .lbl{color:var(--text-gray);}
+    .order-row .val{font-weight:600;color:var(--deep-green);}
+    .btn-p{display:block;width:100%;padding:1.2rem;background:var(--warm-yellow);color:var(--text-dark);border:none;border-radius:12px;font-size:1.1rem;font-weight:800;cursor:pointer;text-decoration:none;font-family:inherit;transition:all .2s;margin-bottom:.8rem;}
+    .btn-p:hover{background:var(--deep-green);color:white;}
+    .btn-s{display:block;width:100%;padding:1rem;background:white;color:var(--deep-green);border:2px solid var(--border-light);border-radius:12px;font-size:1rem;font-weight:600;cursor:pointer;text-decoration:none;font-family:inherit;transition:all .2s;}
+    .btn-s:hover{border-color:var(--deep-green);}
+    #errorMsg{color:var(--text-gray);margin-bottom:2rem;font-size:.95rem;line-height:1.6;}
+  </style>
+</head>
+<body>
+<div class="card">
+  <div id="loadingState">
+    <div class="spinner"></div>
+    <h2>구독을 등록하는 중...</h2>
+    <p>잠시만 기다려주세요</p>
+  </div>
+  <div id="successState">
+    <div class="big-icon">🎉</div>
+    <h2 class="ok">구독 신청 완료!</h2>
+    <p class="subtitle">매달 신선한 유정란이 문 앞에 도착해요</p>
+    <div class="order-summary">
+      <div class="order-row"><span class="lbl">플랜</span><span class="val" id="s-plan">-</span></div>
+      <div class="order-row"><span class="lbl">구성</span><span class="val" id="s-eggs">-</span></div>
+      <div class="order-row"><span class="lbl">첫 배송일</span><span class="val" id="s-date">-</span></div>
+      <div class="order-row"><span class="lbl">배송지</span><span class="val" id="s-addr">-</span></div>
+      <div class="order-row"><span class="lbl">월 결제 금액</span><span class="val" id="s-price">-</span></div>
+    </div>
+    <a href="mypage.html" class="btn-p">마이페이지에서 확인하기</a>
+    <a href="index.html" class="btn-s">홈으로 돌아가기</a>
+  </div>
+  <div id="errorState">
+    <div class="big-icon">😢</div>
+    <h2 class="err">구독 등록 실패</h2>
+    <p id="errorMsg">카드 등록 중 문제가 발생했습니다.<br>다시 시도해주세요.</p>
+    <a href="payment.html" class="btn-p">다시 시도하기</a>
+    <a href="subscribe.html" class="btn-s">플랜 다시 선택하기</a>
+  </div>
+</div>
+<script>
+const FLASK_URL='https://ou-today-server.onrender.com';
+window.addEventListener('DOMContentLoaded',async function(){
+  const p=new URLSearchParams(window.location.search);
+  const authKey=p.get('authKey'),customerKey=p.get('customerKey');
+  if(!authKey||!customerKey){showError('카드 인증 정보가 없습니다.\n다시 시도해주세요.');return;}
+  const orderData=JSON.parse(localStorage.getItem('ou_selected_plan')||'null');
+  if(!orderData){showError('주문 정보를 찾을 수 없습니다.\n플랜을 다시 선택해주세요.');return;}
+  try{
+    const res=await fetch(FLASK_URL+'/api/subscription/register',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        authKey,customerKey,
+        kakaoId:localStorage.getItem('kakao_id'),
+        userName:localStorage.getItem('user_name'),
+        userEmail:localStorage.getItem('user_email'),
+        plan:orderData.plan,price:orderData.price,eggs:orderData.eggs,
+        startDate:orderData.startDate,startDateLabel:orderData.startDateLabel,
+        delivery:orderData.delivery
+      })
+    });
+    const result=await res.json();
+    if(!res.ok){showError(result.error||'구독 등록에 실패했습니다.');return;}
+    showSuccess(orderData);
+  }catch(e){
+    console.error(e);
+    showError('서버 연결에 실패했습니다.\n잠시 후 다시 시도해주세요.');
+  }
+});
+function showSuccess(d){
+  document.getElementById('loadingState').style.display='none';
+  document.getElementById('successState').style.display='block';
+  document.getElementById('s-plan').textContent=d.plan;
+  document.getElementById('s-eggs').textContent=d.eggs+'구';
+  document.getElementById('s-date').textContent=(d.startDateLabel||d.startDate)+' (매월 결제)';
+  document.getElementById('s-addr').textContent=d.delivery&&d.delivery.address||'-';
+  document.getElementById('s-price').textContent=Number(d.price).toLocaleString()+'원/월';
+}
+function showError(msg){
+  document.getElementById('loadingState').style.display='none';
+  document.getElementById('errorState').style.display='block';
+  document.getElementById('errorMsg').textContent=msg;
+}
+</script>
+</body>
+</html>
