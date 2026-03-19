@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>정기구독 신청 | O.U 오늘의 유정란</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root {
+      --deep-green: #2D5016;
+      --warm-yellow: #F5C842;
+      --light-bg: #F8F6F0;
+      --text-gray: #888;
+      --text-dark: #222;
+      --white: #fff;
+      --border-light: #e8e8e8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: var(--light-bg); color: var(--text-dark); }
+
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      background: white; border-bottom: 1px solid var(--border-light);
+      padding: 1rem 2rem;
+    }
+    .header-container { max-width: 1100px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; }
+    .logo { display: flex; align-items: center; gap: 0.8rem; text-decoration: none; }
+    .logo-text { font-size: 1rem; font-weight: 700; color: var(--deep-green); }
+    nav ul { display: flex; gap: 2rem; list-style: none; }
+    nav ul li a { text-decoration: none; color: var(--text-dark); font-weight: 500; }
+
+    .page-wrap { max-width: 860px; margin: 0 auto; padding: 7rem 1.5rem 4rem; }
+
+    .page-title { text-align: center; margin-bottom: 3rem; }
+    .page-title h1 { font-size: 2rem; font-weight: 900; color: var(--deep-green); margin-bottom: 0.5rem; }
+    .page-title p { color: var(--text-gray); font-size: 1rem; }
+
+    /* STEP 표시 */
+    .steps { display: flex; justify-content: center; gap: 0; margin-bottom: 3rem; }
+    .step { display: flex; align-items: center; gap: 0.5rem; }
+    .step-num { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.9rem; background: var(--border-light); color: var(--text-gray); }
+    .step.active .step-num { background: var(--warm-yellow); color: var(--text-dark); }
+    .step.done .step-num { background: var(--deep-green); color: white; }
+    .step-label { font-size: 0.9rem; color: var(--text-gray); font-weight: 600; }
+    .step.active .step-label { color: var(--deep-green); }
+    .step-line { width: 40px; height: 2px; background: var(--border-light); margin: 0 0.5rem; }
+
+    /* 섹션 카드 */
+    .section-card { background: white; border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .section-title { font-size: 1.2rem; font-weight: 800; color: var(--deep-green); margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 2px solid var(--light-bg); }
+
+    /* 플랜 카드 */
+    .plans-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+    @media (max-width: 600px) { .plans-grid { grid-template-columns: 1fr; } }
+
+    .plan-card {
+      border: 2px solid var(--border-light); border-radius: 16px; padding: 1.5rem;
+      cursor: pointer; transition: all 0.2s; position: relative;
+    }
+    .plan-card:hover { border-color: var(--warm-yellow); transform: translateY(-2px); }
+    .plan-card.selected { border-color: var(--deep-green); background: #f0f7e8; }
+    .plan-card.best { border-color: #E87722; }
+    .plan-card.best.selected { border-color: var(--deep-green); }
+
+    .plan-badge {
+      display: inline-block; padding: 0.3rem 0.8rem; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 700; margin-bottom: 0.8rem;
+    }
+    .badge-best { background: #E87722; color: white; }
+    .badge-vip { background: #7B5EA7; color: white; }
+    .badge-basic { background: var(--light-bg); color: var(--text-gray); }
+    .badge-family { background: #E8F5E9; color: var(--deep-green); }
+
+    .plan-name { font-size: 1.1rem; font-weight: 800; color: var(--deep-green); margin-bottom: 0.3rem; }
+    .plan-eggs { font-size: 0.9rem; color: var(--text-gray); margin-bottom: 0.8rem; }
+    .plan-price { font-size: 1.6rem; font-weight: 900; color: var(--text-dark); }
+    .plan-price span { font-size: 1rem; font-weight: 500; color: var(--text-gray); }
+    .plan-desc { font-size: 0.82rem; color: var(--text-gray); margin-top: 0.8rem; line-height: 1.6; }
+    .plan-select-check {
+      position: absolute; top: 1rem; right: 1rem;
+      width: 24px; height: 24px; border-radius: 50%;
+      border: 2px solid var(--border-light); display: flex; align-items: center; justify-content: center;
+    }
+    .plan-card.selected .plan-select-check { background: var(--deep-green); border-color: var(--deep-green); }
+    .plan-card.selected .plan-select-check::after { content: '✓'; color: white; font-size: 0.8rem; font-weight: 700; }
+
+    /* 폼 */
+    .form-group { margin-bottom: 1.5rem; }
+    .form-label { display: block; font-size: 0.9rem; font-weight: 700; color: var(--text-dark); margin-bottom: 0.5rem; }
+    .form-label .required { color: #e53935; margin-left: 2px; }
+    .form-input {
+      width: 100%; padding: 0.9rem 1rem; border: 1.5px solid var(--border-light);
+      border-radius: 10px; font-size: 1rem; font-family: inherit;
+      transition: border-color 0.2s; outline: none;
+    }
+    .form-input:focus { border-color: var(--deep-green); }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 500px) { .form-row { grid-template-columns: 1fr; } }
+
+    .address-btn {
+      padding: 0.9rem 1.2rem; background: var(--deep-green); color: white;
+      border: none; border-radius: 10px; cursor: pointer; font-weight: 700;
+      font-size: 0.9rem; white-space: nowrap;
+    }
+    .address-row { display: flex; gap: 0.5rem; }
+    .address-row .form-input { flex: 1; }
+
+    /* 배송일 */
+    .date-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.8rem; }
+    @media (max-width: 500px) { .date-options { grid-template-columns: repeat(2, 1fr); } }
+    .date-btn {
+      padding: 0.8rem; border: 1.5px solid var(--border-light); border-radius: 10px;
+      background: white; cursor: pointer; font-size: 0.9rem; font-weight: 600;
+      text-align: center; transition: all 0.2s; font-family: inherit;
+    }
+    .date-btn:hover { border-color: var(--warm-yellow); }
+    .date-btn.selected { border-color: var(--deep-green); background: #f0f7e8; color: var(--deep-green); }
+    .date-btn small { display: block; font-size: 0.75rem; color: var(--text-gray); font-weight: 400; margin-top: 2px; }
+    .date-btn.selected small { color: var(--deep-green); }
+
+    /* 주문 요약 */
+    .summary-box { background: var(--light-bg); border-radius: 14px; padding: 1.5rem; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid var(--border-light); font-size: 0.95rem; }
+    .summary-row:last-child { border-bottom: none; padding-top: 1rem; margin-top: 0.5rem; border-top: 2px solid var(--deep-green); }
+    .summary-row .label { color: var(--text-gray); font-weight: 600; }
+    .summary-row .value { font-weight: 700; color: var(--deep-green); }
+    .summary-row.total .value { font-size: 1.4rem; }
+
+    /* 버튼 */
+    .submit-btn {
+      width: 100%; padding: 1.4rem; background: var(--warm-yellow); color: var(--text-dark);
+      border: none; border-radius: 14px; font-size: 1.2rem; font-weight: 800;
+      cursor: pointer; transition: all 0.3s; font-family: inherit; margin-top: 1rem;
+    }
+    .submit-btn:hover { background: var(--deep-green); color: white; transform: translateY(-2px); }
+    .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+    .notice { background: #fff8e1; border-left: 4px solid var(--warm-yellow); border-radius: 10px; padding: 1rem 1.2rem; font-size: 0.88rem; color: var(--text-gray); line-height: 1.8; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <img src="https://www.genspark.ai/api/files/s/Fbqdj55M" alt="O.U" style="height:40px;">
+        <span class="logo-text">오늘의 유정란 <span style="color:var(--text-gray);font-size:0.75em;font-weight:500;">| 구독 서비스</span></span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="index.html">홈</a></li>
+          <li><a href="trial-pack.html">체험팩</a></li>
+          <li><a href="subscription.html">정기구독</a></li>
+          <li id="userMenuArea"></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <div class="page-wrap">
+    <div class="page-title">
+      <h1>🥚 정기구독 신청</h1>
+      <p>신선한 유정란을 매달 문 앞에서 받아보세요</p>
+    </div>
+
+    <!-- 스텝 표시 -->
+    <div class="steps">
+      <div class="step active">
+        <div class="step-num">1</div>
+        <div class="step-label">플랜 선택</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-label">배송 정보</div>
+      </div>
+      <div class="step-line"></div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-label">결제</div>
+      </div>
+    </div>
+
+    <!-- 1. 플랜 선택 -->
+    <div class="section-card">
+      <div class="section-title">① 구독 플랜 선택</div>
+      <div class="plans-grid">
+
+        <div class="plan-card" data-plan="베이직" data-price="19900" data-eggs="30" onclick="selectPlan(this)">
+          <div class="plan-select-check"></div>
+          <div class="plan-badge badge-basic">베이직</div>
+          <div class="plan-name">1판 (30구)</div>
+          <div class="plan-eggs">매월 신선한 유정란 30구</div>
+          <div class="plan-price">19,900<span>원/월</span></div>
+          <div class="plan-desc">✔ 전국 무료배송<br>✔ 배송일 변경 가능<br>✔ 언제든 해지 가능</div>
+        </div>
+
+        <div class="plan-card best" data-plan="BEST" data-price="34900" data-eggs="60" onclick="selectPlan(this)">
+          <div class="plan-select-check"></div>
+          <div class="plan-badge badge-best">⭐ BEST</div>
+          <div class="plan-name">2판 (60구)</div>
+          <div class="plan-eggs">가장 많이 선택해요</div>
+          <div class="plan-price">34,900<span>원/월</span></div>
+          <div class="plan-desc">✔ 전국 무료배송<br>✔ 배송일 변경 가능<br>✔ 언제든 해지 가능<br>✔ 가장 인기 있는 선택</div>
+        </div>
+
+        <div class="plan-card" data-plan="패밀리" data-price="47000" data-eggs="90" onclick="selectPlan(this)">
+          <div class="plan-select-check"></div>
+          <div class="plan-badge badge-family">패밀리</div>
+          <div class="plan-name">3판 (90구)</div>
+          <div class="plan-eggs">가족용으로 넉넉하게</div>
+          <div class="plan-price">47,000<span>원/월</span></div>
+          <div class="plan-desc">✔ 전국 무료배송<br>✔ 배송일 변경 가능<br>✔ 언제든 해지 가능<br>✔ 대가족 추천</div>
+        </div>
+
+        <div class="plan-card" data-plan="VIP 프리미엄" data-price="60000" data-eggs="120" onclick="selectPlan(this)">
+          <div class="plan-select-check"></div>
+          <div class="plan-badge badge-vip">👑 VIP</div>
+          <div class="plan-name">4판 (120구)</div>
+          <div class="plan-eggs">월 2회 분할 배송</div>
+          <div class="plan-price">60,000<span>원/월</span></div>
+          <div class="plan-desc">✔ 월 2회 무료 분할 배송<br>✔ 전국 무료배송<br>✔ 배송일 변경 가능<br>✔ 언제든 해지 가능</div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- 2. 배송 정보 -->
+    <div class="section-card">
+      <div class="section-title">② 배송 정보 입력</div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">받으시는 분 <span class="required">*</span></label>
+          <input type="text" id="recipientName" class="form-input" placeholder="이름을 입력해주세요">
+        </div>
+        <div class="form-group">
+          <label class="form-label">연락처 <span class="required">*</span></label>
+          <input type="tel" id="recipientPhone" class="form-input" placeholder="010-0000-0000" oninput="formatPhone(this)">
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">배송 주소 <span class="required">*</span></label>
+        <div class="address-row" style="margin-bottom:0.5rem;">
+          <input type="text" id="addressPost" class="form-input" placeholder="우편번호" readonly style="max-width:140px;">
+          <button class="address-btn" onclick="searchAddress()">주소 검색</button>
+        </div>
+        <input type="text" id="addressMain" class="form-input" placeholder="기본 주소" readonly style="margin-bottom:0.5rem;">
+        <input type="text" id="addressDetail" class="form-input" placeholder="상세 주소 (동/호수 등)">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">배송 메모</label>
+        <input type="text" id="deliveryMemo" class="form-input" placeholder="예) 문 앞에 놓아주세요">
+      </div>
+    </div>
+
+    <!-- 3. 첫 배송일 선택 -->
+    <div class="section-card">
+      <div class="section-title">③ 첫 배송일 선택</div>
+      <p style="font-size:0.9rem;color:var(--text-gray);margin-bottom:1.2rem;">첫 배송일이 매월 결제일이 됩니다.</p>
+      <div class="date-options" id="dateOptions"></div>
+    </div>
+
+    <!-- 주문 요약 -->
+    <div class="section-card">
+      <div class="section-title">📦 주문 요약</div>
+      <div class="summary-box">
+        <div class="summary-row">
+          <span class="label">선택 플랜</span>
+          <span class="value" id="sumPlan">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">구성</span>
+          <span class="value" id="sumEggs">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">첫 배송일</span>
+          <span class="value" id="sumDate">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="label">배송비</span>
+          <span class="value">무료</span>
+        </div>
+        <div class="summary-row total">
+          <span class="label">월 결제 금액</span>
+          <span class="value" id="sumPrice">-</span>
+        </div>
+      </div>
+
+      <div class="notice">
+        💳 <strong>자동결제 안내</strong><br>
+        첫 결제는 카드 등록 즉시 진행되며, 이후 매월 동일한 날짜에 자동 결제됩니다.<br>
+        구독은 마이페이지에서 언제든 해지할 수 있습니다.
+      </div>
+
+      <button class="submit-btn" id="submitBtn" onclick="goToPayment()" disabled>
+        💳 카드 등록 및 결제하기
+      </button>
+    </div>
+  </div>
+
+  <!-- 카카오 주소 검색 API -->
+  <script src="//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+  <script>
+    // =====================
+    // 상태
+    // =====================
+    let selectedPlan = null;
+    let selectedDate = null;
+
+    // =====================
+    // 로그인 확인
+    // =====================
+    window.addEventListener('DOMContentLoaded', function() {
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        alert('로그인이 필요합니다.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // 헤더 업데이트
+      const area = document.getElementById('userMenuArea');
+      if (area) {
+        area.innerHTML = `<a href="mypage.html" style="background:var(--deep-green);color:white;padding:0.5rem 1.2rem;border-radius:20px;font-weight:600;">마이페이지</a>`;
+      }
+
+      // 날짜 옵션 생성
+      generateDateOptions();
+
+      // 이전에 선택된 플랜이 있으면 복원
+      const saved = JSON.parse(localStorage.getItem('ou_selected_plan') || 'null');
+      if (saved) {
+        const cards = document.querySelectorAll('.plan-card');
+        cards.forEach(card => {
+          if (card.dataset.plan === saved.plan) selectPlan(card);
+        });
+      }
+    });
+
+    // =====================
+    // 플랜 선택
+    // =====================
+    function selectPlan(el) {
+      document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedPlan = {
+        plan: el.dataset.plan,
+        price: parseInt(el.dataset.price),
+        eggs: el.dataset.eggs
+      };
+      updateSummary();
+      checkReady();
+    }
+
+    // =====================
+    // 날짜 옵션 생성 (오늘부터 14일 이내 중 선택 가능한 날)
+    // =====================
+    function generateDateOptions() {
+      const container = document.getElementById('dateOptions');
+      const today = new Date();
+      const days = ['일', '월', '화', '수', '목', '금', '토'];
+      
+      for (let i = 1; i <= 14; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() + i);
+        
+        const month = d.getMonth() + 1;
+        const date = d.getDate();
+        const day = days[d.getDay()];
+        const dateStr = `${d.getFullYear()}-${String(month).padStart(2,'0')}-${String(date).padStart(2,'0')}`;
+        const label = `${month}월 ${date}일`;
+
+        const btn = document.createElement('button');
+        btn.className = 'date-btn';
+        btn.dataset.date = dateStr;
+        btn.dataset.label = label;
+        btn.innerHTML = `${label}<small>(${day})</small>`;
+        btn.onclick = () => selectDate(btn, label, dateStr);
+        container.appendChild(btn);
+      }
+    }
+
+    function selectDate(el, label, dateStr) {
+      document.querySelectorAll('.date-btn').forEach(b => b.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedDate = { label, dateStr };
+      updateSummary();
+      checkReady();
+    }
+
+    // =====================
+    // 주소 검색 (다음 카카오)
+    // =====================
+    function searchAddress() {
+      new daum.Postcode({
+        oncomplete: function(data) {
+          document.getElementById('addressPost').value = data.zonecode;
+          document.getElementById('addressMain').value = data.roadAddress || data.jibunAddress;
+          document.getElementById('addressDetail').focus();
+        }
+      }).open();
+    }
+
+    // =====================
+    // 전화번호 포맷
+    // =====================
+    function formatPhone(el) {
+      let v = el.value.replace(/\D/g, '');
+      if (v.length <= 3) el.value = v;
+      else if (v.length <= 7) el.value = v.slice(0,3) + '-' + v.slice(3);
+      else el.value = v.slice(0,3) + '-' + v.slice(3,7) + '-' + v.slice(7,11);
+    }
+
+    // =====================
+    // 요약 업데이트
+    // =====================
+    function updateSummary() {
+      if (selectedPlan) {
+        document.getElementById('sumPlan').textContent = selectedPlan.plan;
+        document.getElementById('sumEggs').textContent = selectedPlan.eggs + '구';
+        document.getElementById('sumPrice').textContent = selectedPlan.price.toLocaleString() + '원/월';
+      }
+      if (selectedDate) {
+        document.getElementById('sumDate').textContent = selectedDate.label + ' (매월 결제일)';
+      }
+    }
+
+    // =====================
+    // 버튼 활성화 체크
+    // =====================
+    function checkReady() {
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = !(selectedPlan && selectedDate);
+    }
+
+    // =====================
+    // 결제 페이지로 이동
+    // =====================
+    function goToPayment() {
+      const name = document.getElementById('recipientName').value.trim();
+      const phone = document.getElementById('recipientPhone').value.trim();
+      const postCode = document.getElementById('addressPost').value.trim();
+      const mainAddr = document.getElementById('addressMain').value.trim();
+      const detailAddr = document.getElementById('addressDetail').value.trim();
+
+      if (!name) { alert('받으시는 분 이름을 입력해주세요.'); return; }
+      if (!phone || phone.length < 12) { alert('연락처를 올바르게 입력해주세요.'); return; }
+      if (!postCode || !mainAddr) { alert('배송 주소를 입력해주세요.'); return; }
+      if (!detailAddr) { alert('상세 주소를 입력해주세요.'); return; }
+      if (!selectedDate) { alert('첫 배송일을 선택해주세요.'); return; }
+
+      // localStorage에 전체 정보 저장
+      const orderData = {
+        plan: selectedPlan.plan,
+        price: selectedPlan.price,
+        eggs: selectedPlan.eggs,
+        monthlyPrice: selectedPlan.price,
+        delivery: {
+          name,
+          phone,
+          postCode,
+          address: mainAddr + ' ' + detailAddr,
+          memo: document.getElementById('deliveryMemo').value.trim()
+        },
+        startDate: selectedDate.dateStr,
+        startDateLabel: selectedDate.label
+      };
+
+      localStorage.setItem('ou_selected_plan', JSON.stringify(orderData));
+      window.location.href = 'payment.html';
+    }
+  </script>
+</body>
+</html>
