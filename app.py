@@ -193,10 +193,16 @@ def register_subscription():
         }
 
         try:
+            # Replit 서버 먼저 깨우기
+            try:
+                requests.get("https://ousystem.replit.app/login", timeout=5)
+            except:
+                pass
+
             replit_res = requests.post(
                 REPLIT_API_URL,
                 json=replit_payload,
-                timeout=10
+                timeout=15
             )
             print(f"[Replit] 전송 결과: {replit_res.status_code} / {replit_res.text[:200]}")
         except Exception as re:
