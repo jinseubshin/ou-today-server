@@ -17,7 +17,7 @@ CORS(app, resources={
 KAKAO_REST_API_KEY  = "c4c25da779364681dc4df48c81060f34"
 KAKAO_CLIENT_SECRET = "0coRrzVaDtECJE7rW9ImjzYpX3FnuaRz"
 
-TOSS_SECRET_KEY    = "test_sk_ZLKGPx4M3MbdjM2bPEoRVBaWypv1"
+TOSS_SECRET_KEY    = os.environ.get("TOSS_SECRET_KEY", "")
 TOSS_BILLING_URL   = "https://api.tosspayments.com/v1/billing/authorizations/issue"
 TOSS_PAYMENT_URL   = "https://api.tosspayments.com/v1/billing"
 
