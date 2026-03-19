@@ -15,6 +15,7 @@ CORS(app, resources={
 })
 
 KAKAO_REST_API_KEY = "c4c25da779364681dc4df48c81060f34"
+KAKAO_CLIENT_SECRET = "여기에_복사한_시크릿값"
 users_db = {}
 
 def save_or_update_user(user_info):
@@ -38,6 +39,7 @@ def kakao_login():
         res = requests.post("https://kauth.kakao.com/oauth/token", data={
             "grant_type": "authorization_code",
             "client_id": KAKAO_REST_API_KEY.strip(),
+             "client_secret": KAKAO_CLIENT_SECRET.strip(),
             "redirect_uri": redirect_uri.strip(),
             "code": code.strip()
         }, headers={"Content-Type": "application/x-www-form-urlencoded"})
