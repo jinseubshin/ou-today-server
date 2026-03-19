@@ -12,7 +12,7 @@
     12	// ⭐ Flask API URL (실제 서버 주소로 변경 필요!)
     13	// 로컬 테스트: 'http://localhost:5000/api/auth/kakao'
     14	// 배포 후: 'https://your-flask-server.com/api/auth/kakao'
-    15	const FLASK_API_URL = 'http://localhost:5000/api/auth/kakao';
+    15	const FLASK_API_URL = 'https://ou-today-server.onrender.com/api/auth/kakao';
     16	
     17	console.log('========================================');
     18	console.log('[Kakao Auth] 실제 카카오 연동 모드 (Mock 제거됨)');
