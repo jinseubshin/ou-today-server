@@ -242,7 +242,80 @@ def cancel_subscription(kakao_id):
     sub['cancelled_at'] = datetime.now().isoformat()
     return jsonify({"status": "ok", "message": "구독이 해지되었습니다."})
 
+# ========================================
+# 헬스 체크
+# ========================================
+@app.route('/health', methods=['GET'])
+def health_check():
+    return jsonify({"status": "ok", "message": "서버 정상 작동 중"})
 
+
+# ========================================
+# 네이버 로그인
+# ========================================
+NAVER_CLIENT_ID     = "QwT0sDitiiCijlC5_KxB"
+NAVER_CLIENT_SECRET = "f8thiPUdJD"
+NAVER_TOKEN_URL     = "https://nid.naver.com/oauth2.0/token"
+NAVER_USER_INFO_URL = "https://openapi.naver.com/v1/nid/me"
+
+@app.route('/api/auth/naver', methods=['POST', 'OPTIONS'])
+def naver_login():
+    if request.method == 'OPTIONS':
+        return '', 204
+    try:
+        data  = request.json
+        code  = data.get('code')
+        state = data.get('state')
+
+        if not code or not state:
+            return jsonify({"error": "code와 state는 필수입니다"}), 400
+
+        # 1. 액세스 토큰 발급
+        res = requests.post(NAVER_TOKEN_URL, data={
+            "grant_type":    "authorization_code",
+            "client_id":     NAVER_CLIENT_ID,
+            "client_secret": NAVER_CLIENT_SECRET,
+            "code":          code,
+            "state":         state
+        }, headers={"Content-Type": "application/x-www-form-urlencoded"})
+
+        if res.status_code != 200:
+            return jsonify({"error": "네이버 토큰 발급 실패", "detail": res.json()}), 400
+
+        access_token = res.json().get("access_token")
+
+        # 2. 사용자 정보 조회
+        u_res = requests.get(NAVER_USER_INFO_URL, headers={
+            "Authorization": f"Bearer {access_token}"
+        })
+        u_data = u_res.json()
+
+        if u_data.get("resultcode") != "00":
+            return jsonify({"error": "사용자 정보 조회 실패", "detail": u_data}), 400
+
+        profile  = u_data.get("response", {})
+        naver_id = profile.get("id")
+
+        user_info = {
+            "naver_id":      naver_id,
+            "nickname":      profile.get("nickname", ""),
+            "email":         profile.get("email", ""),
+            "profile_image": profile.get("profile_image", ""),
+            "name":          profile.get("name", ""),
+            "mobile":        profile.get("mobile", "")
+        }
+
+        # 3. 메모리 DB 저장
+        if naver_id not in users_db:
+            users_db[naver_id] = user_info
+        else:
+            users_db[naver_id].update(user_info)
+
+        return jsonify({"status": "ok", "user": users_db[naver_id]})
+
+    except Exception as e:
+        print(f"[Naver Login Error] {str(e)}")
+        return jsonify({"error": "서버 오류", "msg": str(e)}), 500
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
