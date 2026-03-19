@@ -1,6 +1,4 @@
-# O.U 카카오 로그인 Flask 백엔드
-# Python 3.8+
-
+# O.U 통합 백엔드 (카카오 + 네이버 준비)
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 import requests
@@ -9,108 +7,77 @@ import os
 
 app = Flask(__name__)
 
-# ========================================
-# CORS 설정 (젠스파크 주소 허용)
-# ========================================
+# 1. CORS 설정: 젠스파크 주소를 확실하게 허용
 CORS(app, resources={
     r"/api/*": {
-        "origins": [
-            "https://fdrxhcpq.gensparkspace.com",
-            "http://localhost:8080",
-            "http://127.0.0.1:8080"
-        ],
-        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "origins": ["https://fdrxhcpq.gensparkspace.com"],
+        "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
 })
 
-# ========================================
-# 카카오 API 설정
-# ========================================
+# 2. API 키 설정 (네이버는 나중에 키만 넣으세요)
 KAKAO_REST_API_KEY = "c4c25da779364681dc4df48c81060f34"
-KAKAO_TOKEN_URL = "https://kauth.kakao.com/oauth/token"
-KAKAO_USER_INFO_URL = "https://kapi.kakao.com/v2/user/me"
+# NAVER_CLIENT_ID = "여기에_나중에_넣기"
+# NAVER_CLIENT_SECRET = "여기에_나중에_넣기"
 
-# 임시 DB
-users_db = {}
+users_db = {} # 임시 DB (서버 재시작시 초기화됨)
 
 def save_or_update_user(user_info):
-    kakao_id = user_info['kakao_id']
-    if kakao_id in users_db:
-        users_db[kakao_id].update({
-            "email": user_info['email'],
-            "nickname": user_info['nickname'],
-            "profile_image": user_info['profile_image'],
-            "updated_at": datetime.utcnow().isoformat(),
-            "last_login_at": datetime.utcnow().isoformat()
-        })
+    uid = user_info['kakao_id']
+    if uid in users_db:
+        users_db[uid].update(user_info)
+        users_db[uid]["last_login"] = datetime.utcnow().isoformat()
     else:
-        users_db[kakao_id] = {
-            "id": len(users_db) + 1,
-            "kakao_id": kakao_id,
-            "email": user_info['email'],
-            "nickname": user_info['nickname'],
-            "profile_image": user_info['profile_image'],
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
-            "last_login_at": datetime.utcnow().isoformat()
-        }
-    return users_db[kakao_id]
+        user_info["created_at"] = datetime.utcnow().isoformat()
+        users_db[uid] = user_info
+    return users_db[uid]
 
 @app.route('/health', methods=['GET'])
-def health_check():
-    return jsonify({"status": "ok", "message": "Flask 서버 정상 작동 중"})
+def health():
+    return jsonify({"status": "ok", "time": datetime.utcnow().isoformat()})
 
 @app.route('/api/auth/kakao', methods=['POST', 'OPTIONS'])
 def kakao_login():
-    if request.method == 'OPTIONS':
-        return '', 204
+    if request.method == 'OPTIONS': return '', 204
     
     try:
         data = request.json
         code = data.get('code')
+        # ⭐ 카카오 개발자 센터와 100% 일치해야 함!
         redirect_uri = "https://fdrxhcpq.gensparkspace.com/kakao-callback.html"
         
-        if not code or not redirect_uri:
-            return jsonify({"error": "code와 redirect_uri는 필수입니다"}), 400
-
-        # 1. 토큰 발급
-        token_response = requests.post(KAKAO_TOKEN_URL, data={
+        # 1. 토큰 요청
+        res = requests.post("https://kauth.kakao.com/oauth/token", data={
             "grant_type": "authorization_code",
             "client_id": KAKAO_REST_API_KEY,
             "redirect_uri": redirect_uri,
             "code": code
         }, headers={"Content-Type": "application/x-form-urlencoded"})
         
-        if token_response.status_code != 200:
-            return jsonify({"error": "토큰 발급 실패", "detail": token_response.json()}), 400
+        if res.status_code != 200:
+            return jsonify({"error": "카카오 토큰 발급 실패", "detail": res.json()}), 400
         
-        access_token = token_response.json().get("access_token")
-
-        # 2. 사용자 정보 조회
-        user_response = requests.get(KAKAO_USER_INFO_URL, headers={
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/x-form-urlencoded;charset=utf-8"
+        # 2. 정보 요청
+        token = res.json().get("access_token")
+        u_res = requests.get("https://kapi.kakao.com/v2/user/me", headers={
+            "Authorization": f"Bearer {token}"
         })
         
-        user_data = user_response.json()
-        kakao_account = user_data.get("kakao_account", {})
-        profile = kakao_account.get("profile", {})
-        
+        u_data = u_res.json()
         user_info = {
-            "kakao_id": str(user_data.get("id")),
-            "email": kakao_account.get("email", ""),
-            "nickname": profile.get("nickname", ""),
-            "profile_image": profile.get("profile_image_url", "")
+            "kakao_id": str(u_data.get("id")),
+            "nickname": u_data.get("properties", {}).get("nickname"),
+            "profile_image": u_data.get("properties", {}).get("profile_image"),
+            "email": u_data.get("kakao_account", {}).get("email")
         }
-
+        
         user = save_or_update_user(user_info)
         return jsonify({"status": "ok", "user": user})
 
     except Exception as e:
-        return jsonify({"error": "서버 오류", "message": str(e)}), 500
+        return jsonify({"error": "서버 오류", "msg": str(e)}), 500
 
 if __name__ == '__main__':
-    # 렌더 배포 시 PORT 환경변수를 사용해야 합니다.
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
