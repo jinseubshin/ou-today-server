@@ -1,220 +1,307 @@
-   1	<!DOCTYPE html>
-     2	<html lang="ko">
-     3	<head>
-     4	  <meta charset="UTF-8">
-     5	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-     6	  <title>마이페이지 - O.U 오늘의 유정란</title>
-     7	  <link rel="preconnect" href="https://fonts.googleapis.com">
-     8	  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-     9	  <link rel="stylesheet" href="css/style.css">
-    10	</head>
-    11	<body>
-    12	
-    13	  <!-- Header -->
-    14	  <header>
-    15	    <div class="header-container">
-    16	      <a href="index.html" class="logo">
-    17	        <img src="https://www.genspark.ai/api/files/s/Fbqdj55M" alt="O.U 오늘의 유정란" style="height: 40px; width: auto; display: block; object-fit: contain; object-position: left center;">
-    18	        <span class="logo-text">오늘의 유정란 <span style="color: var(--text-gray); font-size: 0.75em; font-weight: 500;">| 구독 서비스</span></span>
-    19	      </a>
-    20	      <nav>
-    21	        <ul>
-    22	          <li><a href="index.html">홈</a></li>
-    23	          <li><a href="trial-pack.html">체험팩</a></li>
-    24	          <li><a href="subscription.html">정기구독</a></li>
-    25	          <li id="userMenuArea"></li>
-    26	        </ul>
-    27	      </nav>
-    28	    </div>
-    29	  </header>
-    30	
-    31	  <!-- Mypage Section -->
-    32	  <section style="padding: 8rem 2rem 4rem; background: var(--light-bg); min-height: 100vh;">
-    33	    <div style="max-width: 1000px; margin: 0 auto;">
-    34	      
-    35	      <!-- 사용자 정보 -->
-    36	      <div style="background: var(--white); border-radius: 16px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
-    37	        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
-    38	          <img id="userPhoto" src="" alt="프로필" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--warm-yellow);">
-    39	          <div>
-    40	            <h1 id="userName" style="font-size: 1.8rem; font-weight: 800; color: var(--deep-green); margin-bottom: 0.3rem;"></h1>
-    41	            <p id="userEmail" style="color: var(--text-gray); font-size: 1rem;"></p>
-    42	          </div>
-    43	        </div>
-    44	        <button id="logoutBtn" class="btn btn-secondary" style="padding: 0.8rem 1.5rem;">로그아웃</button>
-    45	      </div>
-    46	
-    47	      <!-- 탭 메뉴 -->
-    48	      <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-light);">
-    49	        <button class="tab-btn active" data-tab="orders" style="padding: 1rem 2rem; border: none; background: none; font-size: 1.1rem; font-weight: 600; color: var(--text-gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;">
-    50	          주문내역
-    51	        </button>
-    52	        <button class="tab-btn" data-tab="subscription" style="padding: 1rem 2rem; border: none; background: none; font-size: 1.1rem; font-weight: 600; color: var(--text-gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;">
-    53	          구독관리
-    54	        </button>
-    55	      </div>
-    56	
-    57	      <!-- 주문내역 탭 -->
-    58	      <div id="ordersTab" class="tab-content active">
-    59	        <div style="background: var(--white); border-radius: 16px; padding: 2.5rem;">
-    60	          <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--deep-green); margin-bottom: 2rem;">
-    61	            주문내역
-    62	          </h2>
-    63	          
-    64	          <div id="ordersList">
-    65	            <!-- 주문 내역이 여기에 로드됩니다 -->
-    66	            <div style="text-align: center; padding: 3rem; color: var(--text-gray);">
-    67	              <p>주문 내역이 없습니다.</p>
-    68	            </div>
-    69	          </div>
-    70	        </div>
-    71	      </div>
-    72	
-    73	      <!-- 구독관리 탭 -->
-    74	      <div id="subscriptionTab" class="tab-content" style="display: none;">
-    75	        <div style="background: var(--white); border-radius: 16px; padding: 2.5rem;">
-    76	          <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--deep-green); margin-bottom: 2rem;">
-    77	            구독관리
-    78	          </h2>
-    79	          
-    80	          <div id="subscriptionInfo">
-    81	            <!-- 구독 정보가 여기에 로드됩니다 -->
-    82	            <div style="text-align: center; padding: 3rem; color: var(--text-gray);">
-    83	              <p>활성화된 구독이 없습니다.</p>
-    84	              <a href="subscription.html" class="btn btn-primary" style="margin-top: 1.5rem; display: inline-flex;">정기구독 시작하기</a>
-    85	            </div>
-    86	          </div>
-    87	        </div>
-    88	      </div>
-    89	
-    90	    </div>
-    91	  </section>
-    92	
-    93	  <!-- Footer -->
-    94	  <footer>
-    95	    <div class="footer-container">
-    96	      <div class="footer-logo">O.U</div>
-    97	      <p class="footer-desc">매일 아침, 당신에게 전하는 신선한 선물</p>
-    98	      <div class="footer-copy">
-    99	        © 2024 O.U 오늘의 유정란. All rights reserved.
-   100	      </div>
-   101	    </div>
-   102	  </footer>
-   103	
-   104	  <script src="js/common.js"></script>
-   105	  <script src="js/kakao-auth.js"></script>
-   106	  <script>
-   107	    // ========================================
-   108	    // 로그인 상태 확인 (단순화!)
-   109	    // ========================================
-   110	    window.addEventListener('DOMContentLoaded', function() {
-   111	      console.log('[마이페이지] 🚀 페이지 로드');
-   112	      
-   113	      // ⭐ isLoggedIn 키로 확인 (단순!)
-   114	      const isLoggedIn = localStorage.getItem('isLoggedIn');
-   115	      const userName = localStorage.getItem('user_name');
-   116	      const userEmail = localStorage.getItem('user_email');
-   117	      const userProfileImage = localStorage.getItem('user_profile_image');
-   118	      
-   119	      console.log('[마이페이지] localStorage 확인:', {
-   120	        isLoggedIn: isLoggedIn,
-   121	        user_name: userName,
-   122	        user_email: userEmail
-   123	      });
-   124	      
-   125	      // ⭐ 로그인 확인 (단순 체크!)
-   126	      if (isLoggedIn !== 'true') {
-   127	        console.error('[마이페이지] ❌ 로그인 안 됨 (isLoggedIn !== "true")');
-   128	        alert('로그인이 필요합니다.');
-   129	        window.location.href = 'login.html';
-   130	        return;
-   131	      }
-   132	      
-   133	      console.log('[마이페이지] ✅ 로그인 확인 완료!');
-   134	      
-   135	      // ========================================
-   136	      // 사용자 정보 표시
-   137	      // ========================================
-   138	      
-   139	      // 이름 표시
-   140	      if (userName) {
-   141	        document.getElementById('userName').textContent = userName;
-   142	      } else {
-   143	        document.getElementById('userName').textContent = '사용자';
-   144	      }
-   145	      
-   146	      // 이메일 표시
-   147	      document.getElementById('userEmail').textContent = userEmail || '이메일 정보 없음';
-   148	      
-   149	      // 프로필 이미지 표시
-   150	      const photoElement = document.getElementById('userPhoto');
-   151	      if (userProfileImage && userProfileImage !== '' && userProfileImage !== 'null') {
-   152	        photoElement.src = userProfileImage;
-   153	        console.log('[마이페이지] ✅ 프로필 이미지:', userProfileImage);
-   154	      } else {
-   155	        const defaultName = userName || '?';
-   156	        const photoUrl = 'https://via.placeholder.com/80/2D5016/FFFFFF?text=' + encodeURIComponent(defaultName.charAt(0));
-   157	        photoElement.src = photoUrl;
-   158	        console.log('[마이페이지] ✅ 기본 이미지 사용');
-   159	      }
-   160	      
-   161	      // 헤더 메뉴 업데이트
-   162	      document.getElementById('userMenuArea').innerHTML = `
-   163	        <a href="mypage.html" style="background: var(--deep-green); color: white; padding: 0.5rem 1.2rem; border-radius: 20px; font-weight: 600;">마이페이지</a>
-   164	      `;
-   165	      
-   166	      console.log('✅ 마이페이지 로드 완료!');
-   167	    });
-   168	
-   169	    // ========================================
-   170	    // 로그아웃
-   171	    // ========================================
-   172	    document.addEventListener('DOMContentLoaded', function() {
-   173	      document.getElementById('logoutBtn').addEventListener('click', function() {
-   174	        if (confirm('정말 로그아웃 하시겠습니까?')) {
-   175	          window.KakaoAuth.logout();
-   176	        }
-   177	      });
-   178	    });
-   179	
-   180	    // ========================================
-   181	    // 탭 전환
-   182	    // ========================================
-   183	    document.querySelectorAll('.tab-btn').forEach(btn => {
-   184	      btn.addEventListener('click', () => {
-   185	        const tabName = btn.dataset.tab;
-   186	        
-   187	        // 모든 탭 버튼 비활성화
-   188	        document.querySelectorAll('.tab-btn').forEach(b => {
-   189	          b.classList.remove('active');
-   190	          b.style.color = 'var(--text-gray)';
-   191	          b.style.borderBottomColor = 'transparent';
-   192	        });
-   193	        
-   194	        // 클릭한 탭 버튼 활성화
-   195	        btn.classList.add('active');
-   196	        btn.style.color = 'var(--deep-green)';
-   197	        btn.style.borderBottomColor = 'var(--warm-yellow)';
-   198	        
-   199	        // 모든 탭 컨텐츠 숨김
-   200	        document.querySelectorAll('.tab-content').forEach(content => {
-   201	          content.style.display = 'none';
-   202	        });
-   203	        
-   204	        // 선택한 탭 컨텐츠 표시
-   205	        if (tabName === 'orders') {
-   206	          document.getElementById('ordersTab').style.display = 'block';
-   207	        } else if (tabName === 'subscription') {
-   208	          document.getElementById('subscriptionTab').style.display = 'block';
-   209	        }
-   210	      });
-   211	    });
-   212	
-   213	    // 초기 활성 탭 스타일 적용
-   214	    document.querySelector('.tab-btn.active').style.color = 'var(--deep-green)';
-   215	    document.querySelector('.tab-btn.active').style.borderBottomColor = 'var(--warm-yellow)';
-   216	  </script>
-   217	
-   218	</body>
-   219	</html>
-   220	
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>마이페이지 - O.U 오늘의 유정란</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .sub-card { background: #f0f7e8; border: 2px solid #2D5016; border-radius: 16px; padding: 2rem; margin-bottom: 1.5rem; }
+    .sub-badge { display: inline-block; padding: 0.3rem 1rem; border-radius: 20px; font-size: 0.82rem; font-weight: 700; margin-bottom: 1rem; }
+    .badge-active { background: #2D5016; color: white; }
+    .badge-cancelled { background: #e0e0e0; color: #888; }
+    .sub-plan-name { font-size: 1.4rem; font-weight: 900; color: #2D5016; margin-bottom: 0.3rem; }
+    .sub-price { font-size: 1.1rem; color: #444; margin-bottom: 1.5rem; }
+    .sub-info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+    @media(max-width:500px){ .sub-info-grid { grid-template-columns: 1fr; } }
+    .sub-info-item { background: white; border-radius: 10px; padding: 1rem; }
+    .sub-info-label { font-size: 0.8rem; color: #888; margin-bottom: 0.3rem; }
+    .sub-info-value { font-size: 0.95rem; font-weight: 700; color: #222; }
+    .delivery-box { background: white; border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; }
+    .delivery-box .sub-info-label { font-size: 0.8rem; color: #888; margin-bottom: 0.5rem; }
+    .cancel-btn { width: 100%; padding: 0.9rem; background: white; color: #e53935; border: 1.5px solid #e53935; border-radius: 10px; font-size: 0.95rem; font-weight: 700; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+    .cancel-btn:hover { background: #e53935; color: white; }
+    .no-sub { text-align: center; padding: 3rem; color: #888; }
+    .no-sub a { display: inline-block; margin-top: 1.5rem; padding: 0.9rem 2rem; background: #2D5016; color: white; border-radius: 10px; text-decoration: none; font-weight: 700; }
+    .loading-text { text-align: center; padding: 2rem; color: #888; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <img src="https://www.genspark.ai/api/files/s/Fbqdj55M" alt="O.U 오늘의 유정란" style="height: 40px; width: auto; display: block; object-fit: contain; object-position: left center;">
+        <span class="logo-text">오늘의 유정란 <span style="color: var(--text-gray); font-size: 0.75em; font-weight: 500;">| 구독 서비스</span></span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="index.html">홈</a></li>
+          <li><a href="trial-pack.html">체험팩</a></li>
+          <li><a href="subscription.html">정기구독</a></li>
+          <li id="userMenuArea"></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section style="padding: 8rem 2rem 4rem; background: var(--light-bg); min-height: 100vh;">
+    <div style="max-width: 1000px; margin: 0 auto;">
+
+      <!-- 사용자 정보 -->
+      <div style="background: var(--white); border-radius: 16px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 2px 12px rgba(0,0,0,0.08);">
+        <div style="display: flex; align-items: center; gap: 1.5rem; margin-bottom: 2rem;">
+          <img id="userPhoto" src="" alt="프로필" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--warm-yellow);">
+          <div>
+            <h1 id="userName" style="font-size: 1.8rem; font-weight: 800; color: var(--deep-green); margin-bottom: 0.3rem;"></h1>
+            <p id="userEmail" style="color: var(--text-gray); font-size: 1rem;"></p>
+          </div>
+        </div>
+        <button id="logoutBtn" class="btn btn-secondary" style="padding: 0.8rem 1.5rem;">로그아웃</button>
+      </div>
+
+      <!-- 탭 메뉴 -->
+      <div style="display: flex; gap: 1rem; margin-bottom: 2rem; border-bottom: 2px solid var(--border-light);">
+        <button class="tab-btn active" data-tab="orders" style="padding: 1rem 2rem; border: none; background: none; font-size: 1.1rem; font-weight: 600; color: var(--deep-green); cursor: pointer; border-bottom: 3px solid var(--warm-yellow); transition: all 0.2s;">
+          주문내역
+        </button>
+        <button class="tab-btn" data-tab="subscription" style="padding: 1rem 2rem; border: none; background: none; font-size: 1.1rem; font-weight: 600; color: var(--text-gray); cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s;">
+          구독관리
+        </button>
+      </div>
+
+      <!-- 주문내역 탭 -->
+      <div id="ordersTab" class="tab-content">
+        <div style="background: var(--white); border-radius: 16px; padding: 2.5rem;">
+          <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--deep-green); margin-bottom: 2rem;">주문내역</h2>
+          <div id="ordersList">
+            <div style="text-align: center; padding: 3rem; color: var(--text-gray);">
+              <p>주문 내역이 없습니다.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 구독관리 탭 -->
+      <div id="subscriptionTab" class="tab-content" style="display: none;">
+        <div style="background: var(--white); border-radius: 16px; padding: 2.5rem;">
+          <h2 style="font-size: 1.5rem; font-weight: 700; color: var(--deep-green); margin-bottom: 2rem;">구독관리</h2>
+          <div id="subscriptionInfo">
+            <div class="loading-text">구독 정보를 불러오는 중...</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-container">
+      <div class="footer-logo">O.U</div>
+      <p class="footer-desc">매일 아침, 당신에게 전하는 신선한 선물</p>
+      <div class="footer-copy">© 2024 O.U 오늘의 유정란. All rights reserved.</div>
+    </div>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/kakao-auth.js"></script>
+  <script>
+    const FLASK_URL = 'https://ou-today-server.onrender.com';
+
+    window.addEventListener('DOMContentLoaded', async function() {
+      const isLoggedIn = localStorage.getItem('isLoggedIn');
+      if (isLoggedIn !== 'true') {
+        alert('로그인이 필요합니다.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const userName = localStorage.getItem('user_name') || localStorage.getItem('user_nickname');
+      const userEmail = localStorage.getItem('user_email');
+      const userProfileImage = localStorage.getItem('user_profile_image');
+      const kakaoId = localStorage.getItem('kakao_id');
+
+      // 이름 표시
+      document.getElementById('userName').textContent = userName || '사용자';
+      document.getElementById('userEmail').textContent = userEmail || '';
+
+      // 프로필 이미지
+      const photoEl = document.getElementById('userPhoto');
+      if (userProfileImage && userProfileImage !== 'null' && userProfileImage !== '') {
+        photoEl.src = userProfileImage;
+      } else {
+        const initial = (userName || '?').charAt(0);
+        photoEl.src = 'https://via.placeholder.com/80/2D5016/FFFFFF?text=' + encodeURIComponent(initial);
+      }
+
+      // 헤더 업데이트
+      document.getElementById('userMenuArea').innerHTML = `
+        <a href="mypage.html" style="background: var(--deep-green); color: white; padding: 0.5rem 1.2rem; border-radius: 20px; font-weight: 600;">마이페이지</a>
+      `;
+
+      // 구독 정보 불러오기
+      if (kakaoId) {
+        await loadSubscription(kakaoId);
+      }
+    });
+
+    // ========================================
+    // 구독 정보 불러오기
+    // ========================================
+    async function loadSubscription(kakaoId) {
+      try {
+        const res = await fetch(`${FLASK_URL}/api/subscription/${kakaoId}`);
+        const data = await res.json();
+
+        const container = document.getElementById('subscriptionInfo');
+
+        if (data.status === 'none' || !data.subscription) {
+          container.innerHTML = `
+            <div class="no-sub">
+              <p>활성화된 구독이 없습니다.</p>
+              <a href="subscribe.html">정기구독 시작하기</a>
+            </div>
+          `;
+          return;
+        }
+
+        const sub = data.subscription;
+        const isActive = sub.status === 'active';
+
+        container.innerHTML = `
+          <div class="sub-card">
+            <span class="sub-badge ${isActive ? 'badge-active' : 'badge-cancelled'}">
+              ${isActive ? '✅ 구독 중' : '❌ 해지됨'}
+            </span>
+            <div class="sub-plan-name">${sub.plan} 구독</div>
+            <div class="sub-price">월 ${Number(sub.price).toLocaleString()}원 · ${sub.eggs}구</div>
+
+            <div class="sub-info-grid">
+              <div class="sub-info-item">
+                <div class="sub-info-label">첫 배송일</div>
+                <div class="sub-info-value">${sub.start_date_label || sub.start_date}</div>
+              </div>
+              <div class="sub-info-item">
+                <div class="sub-info-label">다음 결제일</div>
+                <div class="sub-info-value">${sub.next_payment_date || '-'}</div>
+              </div>
+              <div class="sub-info-item">
+                <div class="sub-info-label">구독 시작일</div>
+                <div class="sub-info-value">${sub.created_at ? sub.created_at.slice(0,10) : '-'}</div>
+              </div>
+              <div class="sub-info-item">
+                <div class="sub-info-label">결제 상태</div>
+                <div class="sub-info-value">${isActive ? '정상' : '해지'}</div>
+              </div>
+            </div>
+
+            <div class="delivery-box">
+              <div class="sub-info-label">📦 배송지</div>
+              <div style="font-size:0.95rem; font-weight:600; color:#222;">${sub.delivery?.name || ''} · ${sub.delivery?.phone || ''}</div>
+              <div style="font-size:0.9rem; color:#555; margin-top:4px;">${sub.delivery?.address || '-'}</div>
+              ${sub.delivery?.memo ? `<div style="font-size:0.85rem;color:#888;margin-top:4px;">메모: ${sub.delivery.memo}</div>` : ''}
+            </div>
+
+            ${isActive ? `
+              <button class="cancel-btn" onclick="cancelSubscription('${kakaoId}')">
+                구독 해지하기
+              </button>
+            ` : `
+              <a href="subscribe.html" style="display:block;text-align:center;padding:0.9rem;background:#2D5016;color:white;border-radius:10px;text-decoration:none;font-weight:700;margin-top:0.5rem;">
+                다시 구독하기
+              </a>
+            `}
+          </div>
+
+          ${sub.orders && sub.orders.length > 0 ? `
+            <h3 style="font-size:1.1rem;font-weight:700;color:#2D5016;margin-bottom:1rem;">결제 내역</h3>
+            ${sub.orders.map(o => `
+              <div style="display:flex;justify-content:space-between;padding:1rem;background:#f8f8f8;border-radius:10px;margin-bottom:0.5rem;font-size:0.9rem;">
+                <span style="color:#555;">${o.paid_at ? o.paid_at.slice(0,10) : '-'}</span>
+                <span style="font-weight:700;color:#2D5016;">${Number(o.amount).toLocaleString()}원</span>
+                <span style="color:#888;">${o.status === 'paid' ? '결제완료' : o.status}</span>
+              </div>
+            `).join('')}
+          ` : ''}
+        `;
+
+        // 주문내역 탭도 업데이트
+        if (sub.orders && sub.orders.length > 0) {
+          document.getElementById('ordersList').innerHTML = sub.orders.map(o => `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:1.2rem;border-bottom:1px solid #f0f0f0;font-size:0.95rem;">
+              <div>
+                <div style="font-weight:700;color:#222;margin-bottom:4px;">${sub.plan} 구독</div>
+                <div style="color:#888;font-size:0.85rem;">${o.paid_at ? o.paid_at.slice(0,10) : '-'}</div>
+              </div>
+              <div style="font-weight:800;color:#2D5016;">${Number(o.amount).toLocaleString()}원</div>
+            </div>
+          `).join('');
+        }
+
+      } catch (e) {
+        console.error(e);
+        document.getElementById('subscriptionInfo').innerHTML = `
+          <div class="no-sub">
+            <p>구독 정보를 불러오지 못했습니다.</p>
+            <a href="subscribe.html">정기구독 시작하기</a>
+          </div>
+        `;
+      }
+    }
+
+    // ========================================
+    // 구독 해지
+    // ========================================
+    async function cancelSubscription(kakaoId) {
+      if (!confirm('정말 구독을 해지하시겠습니까?\n해지 후에는 다음 달부터 결제되지 않습니다.')) return;
+
+      try {
+        const res = await fetch(`${FLASK_URL}/api/subscription/${kakaoId}/cancel`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+
+        if (res.ok) {
+          alert('구독이 해지되었습니다.');
+          await loadSubscription(kakaoId);
+        } else {
+          alert('해지 중 오류가 발생했습니다: ' + (data.error || ''));
+        }
+      } catch (e) {
+        alert('서버 연결 오류가 발생했습니다.');
+      }
+    }
+
+    // ========================================
+    // 로그아웃
+    // ========================================
+    document.addEventListener('DOMContentLoaded', function() {
+      document.getElementById('logoutBtn').addEventListener('click', function() {
+        if (confirm('정말 로그아웃 하시겠습니까?')) {
+          window.KakaoAuth.logout();
+        }
+      });
+    });
+
+    // ========================================
+    // 탭 전환
+    // ========================================
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tabName = btn.dataset.tab;
+        document.querySelectorAll('.tab-btn').forEach(b => {
+          b.style.color = 'var(--text-gray)';
+          b.style.borderBottomColor = 'transparent';
+        });
+        btn.style.color = 'var(--deep-green)';
+        btn.style.borderBottomColor = 'var(--warm-yellow)';
+        document.querySelectorAll('.tab-content').forEach(c => c.style.display = 'none');
+        document.getElementById(tabName === 'orders' ? 'ordersTab' : 'subscriptionTab').style.display = 'block';
+      });
+    });
+  </script>
+</body>
+</html>
