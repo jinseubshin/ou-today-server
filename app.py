@@ -8,8 +8,10 @@ from datetime import datetime
 app = Flask(__name__)
 CORS(app, resources={
     r"/api/*": {
-        "origins": ["https://fdrxhcpq.gensparkspace.com",
-    "https://26278d87-f8e1-4924-b0c5-d6ac5173f60d.vip.gensparksite.com",
+        "origins": [
+            "https://fdrxhcpq.gensparkspace.com",
+            "https://26278d87-f8e1-4924-b0c5-d6ac5173f60d.vip.gensparksite.com"
+        ],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
