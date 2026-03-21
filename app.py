@@ -67,7 +67,7 @@ def kakao_login():
     try:
         data         = request.json
         code         = data.get('code')
-        redirect_uri = "https://fdrxhcpq.gensparkspace.com/kakao-callback.html"
+        redirect_uri = data.get('redirect_uri') or "https://26278d87-f8e1-4924-b0c5-d6ac5173f60d.vip.gensparksite.com/kakao-callback.html"
 
         res = requests.post("https://kauth.kakao.com/oauth/token", data={
             "grant_type":    "authorization_code",
