@@ -9,9 +9,12 @@ app = Flask(__name__)
 CORS(app, resources={
     r"/api/*": {
         "origins": [
-            "https://fdrxhcpq.gensparkspace.com",
-            "https://26278d87-f8e1-4924-b0c5-d6ac5173f60d.vip.gensparksite.com"
-        ],
+    "https://fdrxhcpq.gensparkspace.com",
+    "https://26278d87-f8e1-4924-b0c5-d6ac5173f60d.vip.gensparksite.com",
+    "https://soft-lollipop-fd8ff7.netlify.app",
+    "https://sprightly-licorice-18063d.netlify.app",
+    "https://ousubscription.netlify.app"
+],
         "methods": ["GET", "POST", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
