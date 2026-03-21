@@ -23,6 +23,7 @@ KAKAO_CLIENT_SECRET = "0coRrzVaDtECJE7rW9ImjzYpX3FnuaRz"
 TOSS_SECRET_KEY    = os.environ.get("TOSS_SECRET_KEY", "")
 TOSS_BILLING_URL   = "https://api.tosspayments.com/v1/billing/authorizations/issue"
 TOSS_PAYMENT_URL   = "https://api.tosspayments.com/v1/billing"
+TOSS_CONFIRM_URL   = "https://api.tosspayments.com/v1/payments/confirm"
 
 REPLIT_API_URL     = "https://ousystem.replit.app/order"
 
@@ -32,6 +33,14 @@ PLAN_TO_PRODUCT = {
     "BEST":         "2pan",
     "패밀리":       "3pan",
     "VIP 프리미엄": "4pan",
+}
+
+# 플랜별 월 기본가 (실제 판매가 기준)
+PLAN_BASE_PRICE = {
+    "베이직":       19900,
+    "BEST":         32000,
+    "패밀리":       42000,
+    "VIP 프리미엄": 60000,
 }
 
 # 메모리 DB
@@ -140,10 +149,10 @@ def register_subscription():
         payment_res = requests.post(
             f"{TOSS_PAYMENT_URL}/{billing_key}",
             json={
-                "customerKey":  customer_key,
-                "amount":       price,
-                "orderId":      order_id,
-                "orderName":    f"O.U 유정란 {plan} 구독",
+                "customerKey":   customer_key,
+                "amount":        price,
+                "orderId":       order_id,
+                "orderName":     f"O.U 유정란 {plan} 구독",
                 "customerEmail": user_email,
                 "customerName":  user_name
             },
@@ -160,23 +169,24 @@ def register_subscription():
 
         # 3. 구독 정보 저장 (메모리)
         subscription = {
-            "kakao_id":         kakao_id,
-            "plan":             plan,
-            "price":            price,
-            "eggs":             eggs,
-            "billing_key":      billing_key,
-            "customer_key":     customer_key,
-            "start_date":       start_date,
-            "start_date_label": start_date_label,
+            "kakao_id":          kakao_id,
+            "plan":              plan,
+            "payment_type":      "monthly",
+            "price":             price,
+            "eggs":              eggs,
+            "billing_key":       billing_key,
+            "customer_key":      customer_key,
+            "start_date":        start_date,
+            "start_date_label":  start_date_label,
             "next_payment_date": start_date,
-            "delivery":         delivery,
-            "status":           "active",
-            "created_at":       datetime.now().isoformat(),
+            "delivery":          delivery,
+            "status":            "active",
+            "created_at":        datetime.now().isoformat(),
             "orders": [{
-                "order_id":  order_id,
-                "amount":    price,
-                "paid_at":   datetime.now().isoformat(),
-                "status":    "paid"
+                "order_id": order_id,
+                "amount":   price,
+                "paid_at":  datetime.now().isoformat(),
+                "status":   "paid"
             }]
         }
         subscriptions_db[kakao_id] = subscription
@@ -184,29 +194,23 @@ def register_subscription():
         # 4. Replit 관리자 시스템으로 주문 전송
         replit_product = PLAN_TO_PRODUCT.get(plan, "1pan")
         replit_payload = {
-            "name":         delivery.get("name") or user_name,
-            "phone":        delivery.get("phone", ""),
-            "address":      delivery.get("address", ""),
-            "product":      replit_product,
-            "payment_type": "monthly",
-            "created_at":   start_date,
-            "status":       "paid",
+            "name":           delivery.get("name") or user_name,
+            "phone":          delivery.get("phone", ""),
+            "address":        delivery.get("address", ""),
+            "product":        replit_product,
+            "payment_type":   "monthly",
+            "created_at":     start_date,
+            "status":         "paid",
             "payment_status": "paid",
-            "memo":         f"카카오 구독 | {plan} | {eggs}구 | 배송메모: {delivery.get('memo', '')} | kakao_id: {kakao_id}"
+            "memo":           f"카카오 구독 | {plan} | {eggs}구 | 배송메모: {delivery.get('memo', '')} | kakao_id: {kakao_id}"
         }
 
         try:
-            # Replit 서버 먼저 깨우기
             try:
                 requests.get("https://ousystem.replit.app/login", timeout=5)
             except:
                 pass
-
-            replit_res = requests.post(
-                REPLIT_API_URL,
-                json=replit_payload,
-                timeout=15
-            )
+            replit_res = requests.post(REPLIT_API_URL, json=replit_payload, timeout=15)
             print(f"[Replit] 전송 결과: {replit_res.status_code} / {replit_res.text[:200]}")
         except Exception as re:
             print(f"[Replit] 전송 실패 (구독은 정상 처리됨): {str(re)}")
@@ -215,6 +219,127 @@ def register_subscription():
 
     except Exception as e:
         print(f"[Subscription Error] {str(e)}")
+        return jsonify({"error": "서버 오류", "msg": str(e)}), 500
+
+
+# ========================================
+# 단건 결제 Confirm (체험팩 + 연간구독 공통)
+# ========================================
+@app.route('/api/payment/confirm-onetime', methods=['POST', 'OPTIONS'])
+def confirm_onetime_payment():
+    if request.method == 'OPTIONS':
+        return '', 204
+    try:
+        data         = request.json
+        payment_key  = data.get('paymentKey')
+        order_id     = data.get('orderId')
+        amount       = int(data.get('amount', 0))
+        payment_type = data.get('paymentType', 'trial')  # 'trial' | 'annual'
+        kakao_id     = data.get('kakaoId', 'guest')
+        delivery     = data.get('delivery', {})
+        plan         = data.get('plan', '')
+        eggs         = data.get('eggs', '')
+        start_date   = data.get('startDate', '')
+        valid_until  = data.get('validUntil', '')
+        order_name   = data.get('orderName', 'O.U 유정란')
+        user_name    = data.get('userName', '고객')
+        user_email   = data.get('userEmail', '')
+
+        if not payment_key or not order_id or not amount:
+            return jsonify({"error": "필수 파라미터 누락"}), 400
+
+        # 1. 토스 결제 승인
+        secret_b64  = base64.b64encode(f"{TOSS_SECRET_KEY}:".encode()).decode()
+        confirm_res = requests.post(
+            TOSS_CONFIRM_URL,
+            json={
+                "paymentKey": payment_key,
+                "orderId":    order_id,
+                "amount":     amount
+            },
+            headers={
+                "Authorization": f"Basic {secret_b64}",
+                "Content-Type":  "application/json"
+            }
+        )
+        confirm_data = confirm_res.json()
+        print(f"[Toss Confirm-Onetime] {payment_type} / {confirm_data}")
+
+        if confirm_res.status_code != 200:
+            return jsonify({"error": "결제 승인 실패", "detail": confirm_data}), 400
+
+        # 2. 연간구독이면 DB 저장
+        base_monthly = PLAN_BASE_PRICE.get(plan, 0)
+        subscription = None
+
+        if payment_type == 'annual' and kakao_id != 'guest':
+            subscription = {
+                "kakao_id":           kakao_id,
+                "plan":               plan,
+                "payment_type":       "annual",
+                "base_monthly_price": base_monthly,
+                "annual_price":       amount,
+                "eggs":               eggs,
+                "billing_key":        None,
+                "customer_key":       None,
+                "start_date":         start_date,
+                "valid_until":        valid_until,
+                "delivery":           delivery,
+                "status":             "active",
+                "created_at":         datetime.now().isoformat(),
+                "orders": [{
+                    "order_id": order_id,
+                    "amount":   amount,
+                    "paid_at":  datetime.now().isoformat(),
+                    "status":   "paid",
+                    "type":     "annual"
+                }]
+            }
+            subscriptions_db[kakao_id] = subscription
+
+        # 3. Replit 전송
+        if payment_type == 'trial':
+            replit_product  = "trial"
+            replit_memo     = f"체험팩 8구 | kakao_id: {kakao_id}"
+            replit_pay_type = "trial"
+        else:
+            replit_product  = PLAN_TO_PRODUCT.get(plan, "1pan")
+            replit_memo     = f"연간구독 | {plan} | {eggs}구 | 유효기간: {valid_until} | 배송메모: {delivery.get('memo', '')} | kakao_id: {kakao_id}"
+            replit_pay_type = "annual"
+
+        replit_payload = {
+            "name":           delivery.get("name") or user_name,
+            "phone":          delivery.get("phone", ""),
+            "address":        delivery.get("address", ""),
+            "product":        replit_product,
+            "payment_type":   replit_pay_type,
+            "created_at":     start_date or datetime.now().strftime("%Y-%m-%d"),
+            "status":         "paid",
+            "payment_status": "paid",
+            "amount":         amount,
+            "memo":           replit_memo
+        }
+
+        try:
+            try:
+                requests.get("https://ousystem.replit.app/login", timeout=5)
+            except:
+                pass
+            replit_res = requests.post(REPLIT_API_URL, json=replit_payload, timeout=15)
+            print(f"[Replit Onetime] 전송 결과: {replit_res.status_code} / {replit_res.text[:200]}")
+        except Exception as re:
+            print(f"[Replit Onetime] 전송 실패 (결제는 정상): {str(re)}")
+
+        return jsonify({
+            "status":       "ok",
+            "paymentType":  payment_type,
+            "orderId":      order_id,
+            "amount":       amount,
+            "subscription": subscription
+        })
+
+    except Exception as e:
+        print(f"[Onetime Payment Error] {str(e)}")
         return jsonify({"error": "서버 오류", "msg": str(e)}), 500
 
 
@@ -245,6 +370,7 @@ def cancel_subscription(kakao_id):
     sub['cancelled_at'] = datetime.now().isoformat()
     return jsonify({"status": "ok", "message": "구독이 해지되었습니다."})
 
+
 # ========================================
 # 헬스 체크
 # ========================================
@@ -273,7 +399,6 @@ def naver_login():
         if not code or not state:
             return jsonify({"error": "code와 state는 필수입니다"}), 400
 
-        # 1. 액세스 토큰 발급
         res = requests.post(NAVER_TOKEN_URL, data={
             "grant_type":    "authorization_code",
             "client_id":     NAVER_CLIENT_ID,
@@ -287,10 +412,7 @@ def naver_login():
 
         access_token = res.json().get("access_token")
 
-        # 2. 사용자 정보 조회
-        u_res = requests.get(NAVER_USER_INFO_URL, headers={
-            "Authorization": f"Bearer {access_token}"
-        })
+        u_res  = requests.get(NAVER_USER_INFO_URL, headers={"Authorization": f"Bearer {access_token}"})
         u_data = u_res.json()
 
         if u_data.get("resultcode") != "00":
@@ -308,7 +430,6 @@ def naver_login():
             "mobile":        profile.get("mobile", "")
         }
 
-        # 3. 메모리 DB 저장
         if naver_id not in users_db:
             users_db[naver_id] = user_info
         else:
@@ -319,6 +440,8 @@ def naver_login():
     except Exception as e:
         print(f"[Naver Login Error] {str(e)}")
         return jsonify({"error": "서버 오류", "msg": str(e)}), 500
+
+
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
