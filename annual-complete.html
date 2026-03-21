@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>연간구독 결제 완료 | O.U 오늘의 유정란</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .complete-container { min-height: 100vh; padding: 6rem 2rem 4rem; background: #FAFAFA; display: flex; align-items: center; justify-content: center; }
+    .complete-card { max-width: 540px; width: 100%; background: white; border-radius: 24px; padding: 3rem 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); text-align: center; }
+    .spinner { border: 4px solid #f3f3f3; border-top: 4px solid var(--deep-green); border-radius: 50%; width: 50px; height: 50px; animation: spin 1s linear infinite; margin: 2rem auto; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+    .success-icon { font-size: 4rem; margin-bottom: 1rem; }
+    .complete-title { font-size: 2rem; font-weight: 900; color: var(--deep-green); margin-bottom: 0.8rem; }
+    .complete-subtitle { font-size: 1.05rem; color: var(--text-gray); margin-bottom: 2rem; line-height: 1.7; }
+    .order-summary { background: var(--light-bg); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; text-align: left; }
+    .order-row { display: flex; justify-content: space-between; padding: 0.7rem 0; border-bottom: 1px solid #e0e0e0; font-size: 0.95rem; }
+    .order-row:last-child { border-bottom: none; }
+    .order-label { color: var(--text-gray); font-weight: 600; }
+    .order-value { color: var(--text-dark); font-weight: 700; }
+    .valid-banner { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem; }
+    .valid-banner p { margin: 0; color: var(--deep-green); font-weight: 700; font-size: 1rem; line-height: 1.7; }
+    .btn-mypage { display: inline-block; background: var(--deep-green); color: white; padding: 1rem 2rem; border-radius: 12px; text-decoration: none; font-weight: 700; font-size: 1rem; transition: all 0.3s; }
+    .btn-mypage:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(0,0,0,0.2); }
+    .btn-home { display: block; margin-top: 1.2rem; color: var(--text-gray); text-decoration: none; font-size: 0.95rem; }
+    .btn-home:hover { color: var(--deep-green); }
+    .error-box { background: #fff0f0; border: 2px solid #ff6b6b; border-radius: 16px; padding: 1.5rem; color: #c0392b; }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <img src="https://www.genspark.ai/api/files/s/Fbqdj55M" alt="O.U 오늘의 유정란" style="height: 40px; width: auto;">
+        <span class="logo-text">오늘의 유정란 <span style="color: var(--text-gray); font-size: 0.75em; font-weight: 500;">| 구독 서비스</span></span>
+      </a>
+    </div>
+  </header>
+
+  <section class="complete-container">
+    <div class="complete-card" id="loadingState">
+      <div class="spinner"></div>
+      <p style="color: var(--text-gray);">결제를 확인하고 있습니다...</p>
+    </div>
+
+    <div class="complete-card" id="successState" style="display:none;">
+      <div class="success-icon">🎉</div>
+      <h1 class="complete-title">연간구독 완료!</h1>
+      <p class="complete-subtitle">1년치 구독 결제가 완료되었습니다.<br>매달 신선한 유정란을 정기 발송해드려요.</p>
+
+      <div class="order-summary">
+        <div class="order-row">
+          <span class="order-label">플랜</span>
+          <span class="order-value" id="planName">-</span>
+        </div>
+        <div class="order-row">
+          <span class="order-label">결제 금액</span>
+          <span class="order-value" id="paidAmount">-</span>
+        </div>
+        <div class="order-row">
+          <span class="order-label">절약 금액</span>
+          <span class="order-value" id="savedAmount" style="color: var(--deep-green);">-</span>
+        </div>
+        <div class="order-row">
+          <span class="order-label">배송지</span>
+          <span class="order-value" id="deliveryAddr">-</span>
+        </div>
+        <div class="order-row">
+          <span class="order-label">주문번호</span>
+          <span class="order-value" id="orderIdDisplay" style="font-size:0.82rem;">-</span>
+        </div>
+      </div>
+
+      <div class="valid-banner">
+        <p>📅 구독 유효기간<br>
+        <span id="validPeriod" style="font-size:1.1rem;">-</span></p>
+      </div>
+
+      <a href="mypage.html" class="btn-mypage">마이페이지에서 구독 확인 →</a>
+      <a href="index.html" class="btn-home">← 홈으로 돌아가기</a>
+    </div>
+
+    <div class="complete-card" id="errorState" style="display:none;">
+      <div class="success-icon">😥</div>
+      <h1 class="complete-title" style="color:#c0392b;">결제 확인 실패</h1>
+      <div class="error-box">
+        <p id="errorMessage">결제 확인 중 오류가 발생했습니다.</p>
+      </div>
+      <a href="subscription.html" class="btn-mypage" style="display:inline-block; margin-top:1.5rem; background:var(--warm-yellow); color:var(--text-dark);">다시 시도하기</a>
+      <a href="index.html" class="btn-home">홈으로 돌아가기</a>
+    </div>
+  </section>
+
+  <script>
+    const BACKEND_URL = "https://ou-today-server.onrender.com";
+
+    async function confirmAnnualPayment() {
+      const params     = new URLSearchParams(window.location.search);
+      const paymentKey = params.get('paymentKey');
+      const orderId    = params.get('orderId');
+      const amount     = params.get('amount');
+
+      if (!paymentKey || !orderId || !amount) {
+        showError('결제 정보가 올바르지 않습니다.');
+        return;
+      }
+
+      const annualData = JSON.parse(localStorage.getItem('ou_annual_data') || '{}');
+      const kakaoId    = localStorage.getItem('kakao_id') || 'guest';
+
+      try {
+        const res = await fetch(`${BACKEND_URL}/api/payment/confirm-onetime`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            paymentKey,
+            orderId,
+            amount:       parseInt(amount),
+            paymentType:  'annual',
+            kakaoId,
+            plan:         annualData.plan,
+            eggs:         annualData.eggs,
+            delivery:     annualData.delivery || {},
+            startDate:    annualData.startDate,
+            validUntil:   annualData.validUntil,
+            orderName:    `O.U 유정란 ${annualData.plan} 연간구독`,
+            userName:     localStorage.getItem('user_nickname') || localStorage.getItem('user_name') || '고객',
+            userEmail:    localStorage.getItem('user_email') || ''
+          })
+        });
+
+        const data = await res.json();
+
+        if (data.status === 'ok') {
+          document.getElementById('loadingState').style.display  = 'none';
+          document.getElementById('successState').style.display  = 'block';
+
+          const baseMonthly   = data.subscription?.base_monthly_price || 0;
+          const originalTotal = baseMonthly * 12;
+          const paidTotal     = parseInt(amount);
+          const saved         = originalTotal - paidTotal;
+
+          document.getElementById('planName').textContent     = (annualData.plan || '-') + ' 연간구독';
+          document.getElementById('paidAmount').textContent   = paidTotal.toLocaleString() + '원';
+          document.getElementById('savedAmount').textContent  = saved > 0 ? '🎉 -' + saved.toLocaleString() + '원 절약!' : '-';
+          document.getElementById('deliveryAddr').textContent = annualData.delivery?.address || '-';
+          document.getElementById('orderIdDisplay').textContent = orderId;
+          document.getElementById('validPeriod').textContent  = `${annualData.startDate || '오늘'} ~ ${annualData.validUntil || '1년 후'}`;
+
+          localStorage.removeItem('ou_annual_data');
+        } else {
+          showError(data.error || '결제 확인에 실패했습니다.');
+        }
+
+      } catch (e) {
+        console.error(e);
+        showError('서버 연결에 실패했습니다. 잠시 후 다시 시도해주세요.');
+      }
+    }
+
+    function showError(msg) {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('errorState').style.display   = 'block';
+      document.getElementById('errorMessage').textContent   = msg;
+    }
+
+    window.addEventListener('load', confirmAnnualPayment);
+  </script>
+</body>
+</html>

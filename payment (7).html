@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>결제 진행 | O.U 오늘의 유정란</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://js.tosspayments.com/v2/standard"></script>
+  <style>
+    .payment-container { min-height: 100vh; padding: 6rem 2rem 4rem; background: #FAFAFA; display: flex; align-items: center; justify-content: center; }
+    .payment-card { max-width: 600px; width: 100%; background: white; border-radius: 24px; padding: 3rem 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .payment-header { text-align: center; margin-bottom: 2.5rem; }
+    .annual-badge { display: inline-block; background: #e8f5e9; color: var(--deep-green); font-size: 0.85rem; font-weight: 700; padding: 0.4rem 1rem; border-radius: 20px; margin-bottom: 1rem; border: 1.5px solid var(--deep-green); }
+    .payment-title { font-size: 2.2rem; font-weight: 900; color: var(--deep-green); margin-bottom: 0.8rem; }
+    .payment-subtitle { font-size: 1.1rem; color: var(--text-gray); }
+    .plan-summary { background: var(--light-bg); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
+    .plan-summary h3 { font-size: 1.2rem; font-weight: 700; color: var(--deep-green); margin-bottom: 1.5rem; text-align: center; }
+    .summary-row { display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #e0e0e0; }
+    .summary-row:last-child { border-bottom: none; padding-top: 1.5rem; margin-top: 1rem; border-top: 2px solid var(--deep-green); }
+    .summary-label { font-weight: 600; color: var(--text-dark); }
+    .summary-value { font-weight: 700; color: var(--deep-green); }
+    .summary-value.total { font-size: 1.5rem; }
+    .discount-row { background: #e8f5e9; border-radius: 8px; padding: 0.8rem 1rem; margin-top: -0.5rem; margin-bottom: 0.5rem; display: flex; justify-content: space-between; font-size: 0.9rem; }
+    .discount-label { color: var(--deep-green); font-weight: 600; }
+    .discount-value { color: var(--deep-green); font-weight: 700; }
+    .payment-info { background: #fff8e1; border-left: 4px solid var(--warm-yellow); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .payment-info p { color: var(--text-gray); line-height: 1.8; margin: 0; font-size: 0.95rem; }
+    .payment-button { width: 100%; padding: 1.5rem; font-size: 1.3rem; font-weight: 700; background: var(--warm-yellow); color: var(--text-dark); border: none; border-radius: 16px; cursor: pointer; transition: all 0.3s ease; margin-top: 1rem; }
+    .payment-button:hover { background: var(--deep-green); color: white; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    .payment-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .back-link { display: block; text-align: center; margin-top: 1.5rem; color: var(--text-gray); text-decoration: none; font-size: 0.95rem; }
+    .back-link:hover { color: var(--deep-green); }
+    @media (max-width: 768px) { .payment-card { padding: 2rem 1.5rem; } .payment-title { font-size: 1.8rem; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <img src="https://www.genspark.ai/api/files/s/Fbqdj55M" alt="O.U 오늘의 유정란" style="height: 40px; width: auto;">
+        <span class="logo-text">오늘의 유정란 <span style="color: var(--text-gray); font-size: 0.75em; font-weight: 500;">| 구독 서비스</span></span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="index.html">홈</a></li>
+          <li><a href="trial.html">체험팩</a></li>
+          <li><a href="subscription.html">정기구독</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="payment-container">
+    <div class="payment-card">
+      <div class="payment-header">
+        <!-- 연간결제일 때만 뱃지 표시 (JS로 제어) -->
+        <div class="annual-badge" id="annualBadge" style="display:none;">🎉 연간구독 15% 할인</div>
+        <h1 class="payment-title" id="pageTitle">결제를 진행합니다</h1>
+        <p class="payment-subtitle" id="pageSubtitle">선택하신 플랜을 확인해주세요</p>
+      </div>
+
+      <div class="plan-summary">
+        <h3 id="summaryTitle">📦 선택한 구독 플랜</h3>
+        <div class="summary-row">
+          <span class="summary-label">플랜</span>
+          <span class="summary-value" id="planName">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">총 구성</span>
+          <span class="summary-value" id="totalEggs">-</span>
+        </div>
+        <div class="summary-row" id="startDateRow">
+          <span class="summary-label">첫 배송일</span>
+          <span class="summary-value" id="startDate">-</span>
+        </div>
+        <!-- 연간일 때만 표시: 유효기간 -->
+        <div class="summary-row" id="validUntilRow" style="display:none;">
+          <span class="summary-label">구독 유효기간</span>
+          <span class="summary-value" id="validUntil">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">배송지</span>
+          <span class="summary-value" id="deliveryAddr">-</span>
+        </div>
+        <!-- 연간일 때: 원가 표시 행 -->
+        <div class="summary-row" id="originalPriceRow" style="display:none;">
+          <span class="summary-label">월 정상가</span>
+          <span class="summary-value" id="originalPrice" style="text-decoration:line-through; color:var(--text-gray);">-</span>
+        </div>
+        <!-- 할인 뱃지 (연간 전용) -->
+        <div class="discount-row" id="discountRow" style="display:none;">
+          <span class="discount-label">🎉 연간 할인 (15%)</span>
+          <span class="discount-value" id="discountAmount">-</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label" id="priceLabel">월 결제 금액</span>
+          <span class="summary-value total" id="monthlyPrice">-</span>
+        </div>
+      </div>
+
+      <div class="payment-info">
+        <p id="paymentInfoText">
+          💳 <strong>자동 결제</strong> 안내<br>
+          첫 결제는 카드 등록 즉시 진행됩니다.<br>
+          이후 매월 동일한 날짜에 자동으로 결제됩니다.<br>
+          구독은 마이페이지에서 언제든 해지 가능합니다.
+        </p>
+      </div>
+
+      <button id="paymentButton" class="payment-button">
+        💳 카드 등록 및 구독 시작하기
+      </button>
+
+      <a href="subscription.html" class="back-link">← 플랜 다시 선택하기</a>
+    </div>
+  </section>
+
+  <script>
+    const TOSS_CLIENT_KEY = "live_ck_26DlbXAaV0LpJjlenQJzVqY50Q9R";
+    const ANNUAL_DISCOUNT = 0.15; // 15%
+    const BACKEND_URL     = "https://ou-today-server.onrender.com";
+
+    // URL 파라미터 파싱
+    const urlParams = new URLSearchParams(window.location.search);
+    const isAnnual  = urlParams.get('mode') === 'annual';
+
+    function getValidUntilDate() {
+      const d = new Date();
+      d.setFullYear(d.getFullYear() + 1);
+      return `${d.getFullYear()}년 ${d.getMonth()+1}월 ${d.getDate()}일`;
+    }
+
+    window.addEventListener('load', function() {
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        alert('로그인이 필요합니다.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const planData = JSON.parse(localStorage.getItem('ou_selected_plan') || 'null');
+      if (!planData) {
+        alert('선택된 플랜이 없습니다.\n플랜 선택 페이지로 이동합니다.');
+        window.location.href = 'subscription.html';
+        return;
+      }
+
+      const basePrice = Number(planData.monthlyPrice || planData.price);
+
+      if (isAnnual) {
+        // ── 연간결제 UI ──
+        const discountAmt  = Math.round(basePrice * ANNUAL_DISCOUNT);
+        const annualTotal  = Math.round((basePrice - discountAmt) * 12);
+
+        document.getElementById('annualBadge').style.display    = 'inline-block';
+        document.getElementById('pageTitle').textContent         = '연간구독 결제';
+        document.getElementById('pageSubtitle').textContent      = '1년치 선납 시 15% 할인 적용';
+        document.getElementById('summaryTitle').textContent      = '📦 연간구독 플랜';
+        document.getElementById('validUntilRow').style.display   = 'flex';
+        document.getElementById('originalPriceRow').style.display= 'flex';
+        document.getElementById('discountRow').style.display     = 'flex';
+        document.getElementById('startDateRow').querySelector('.summary-label').textContent = '구독 시작일';
+
+        document.getElementById('planName').textContent         = planData.plan + ' 연간구독';
+        document.getElementById('totalEggs').textContent        = planData.eggs + '구 × 12회';
+        document.getElementById('startDate').textContent        = planData.startDateLabel || planData.startDate;
+        document.getElementById('validUntil').textContent       = getValidUntilDate() + '까지';
+        document.getElementById('deliveryAddr').textContent     = planData.delivery?.address || '-';
+        document.getElementById('originalPrice').textContent    = basePrice.toLocaleString() + '원/월';
+        document.getElementById('discountAmount').textContent   = '-' + (discountAmt * 12).toLocaleString() + '원';
+        document.getElementById('priceLabel').textContent       = '연간 총 결제 금액';
+        document.getElementById('monthlyPrice').textContent     = annualTotal.toLocaleString() + '원';
+
+        document.getElementById('paymentInfoText').innerHTML = `
+          🎉 <strong>연간구독 안내</strong><br>
+          1년치 ${annualTotal.toLocaleString()}원을 한 번에 결제합니다.<br>
+          매월 자동결제 없이 1년간 구독이 유지됩니다.<br>
+          구독 기간: ${planData.startDateLabel || planData.startDate} ~ ${getValidUntilDate()}
+        `;
+        document.getElementById('paymentButton').textContent = `💳 ${annualTotal.toLocaleString()}원 연간결제 하기`;
+
+        // 연간 금액을 planData에 저장 (결제 시 사용)
+        planData._annualTotal    = annualTotal;
+        planData._annualDiscount = discountAmt * 12;
+        localStorage.setItem('ou_selected_plan', JSON.stringify(planData));
+
+      } else {
+        // ── 정기구독 UI (기존) ──
+        document.getElementById('planName').textContent     = planData.plan + ' 구독';
+        document.getElementById('totalEggs').textContent    = planData.eggs + '구';
+        document.getElementById('startDate').textContent    = (planData.startDateLabel || planData.startDate) + ' (매월 결제일)';
+        document.getElementById('deliveryAddr').textContent = planData.delivery?.address || '-';
+        document.getElementById('monthlyPrice').textContent = basePrice.toLocaleString() + '원';
+      }
+    });
+
+    document.getElementById('paymentButton').addEventListener('click', async function() {
+      const planData = JSON.parse(localStorage.getItem('ou_selected_plan') || 'null');
+      if (!planData) { alert('플랜 정보가 없습니다.'); return; }
+
+      this.disabled = true;
+      this.textContent = '결제창 열기 중...';
+
+      const kakaoId     = localStorage.getItem('kakao_id') || 'guest';
+      const customerKey = `ou_${kakaoId}`;
+      localStorage.setItem('ou_customer_key', customerKey);
+
+      try {
+        const tossPayments = TossPayments(TOSS_CLIENT_KEY);
+        const payment      = tossPayments.payment({ customerKey });
+
+        if (isAnnual) {
+          // ── 연간: 단건 결제 ──
+          const annualTotal = planData._annualTotal;
+          const orderId     = `annual-${kakaoId}-${Date.now()}`;
+
+          // 연간 주문 데이터 저장
+          localStorage.setItem('ou_annual_data', JSON.stringify({
+            orderId,
+            amount:      annualTotal,
+            plan:        planData.plan,
+            eggs:        planData.eggs,
+            delivery:    planData.delivery,
+            startDate:   planData.startDate,
+            validUntil:  getValidUntilDate()
+          }));
+
+          await payment.requestPayment({
+            method:    '카드',
+            amount:    { currency: 'KRW', value: annualTotal },
+            orderId,
+            orderName: `O.U 유정란 ${planData.plan} 연간구독`,
+            successUrl: window.location.origin + '/annual-complete.html',
+            failUrl:    window.location.origin + '/subscription-billing-fail.html',
+            customerEmail: localStorage.getItem('user_email') || '',
+            customerName:  localStorage.getItem('user_nickname') || localStorage.getItem('user_name') || '고객',
+          });
+
+        } else {
+          // ── 정기구독: 빌링키 발급 (기존 로직 유지) ──
+          await payment.requestBillingAuth({
+            method:     '카드',
+            successUrl: window.location.origin + '/subscription-complete.html',
+            failUrl:    window.location.origin + '/subscription-billing-fail.html',
+          });
+        }
+
+      } catch (error) {
+        console.error('결제 오류:', error);
+        if (error.code !== 'USER_CANCEL') {
+          alert('결제 진행 중 오류가 발생했습니다.\n다시 시도해주세요.');
+        }
+        this.disabled = false;
+        this.textContent = isAnnual
+          ? `💳 ${(planData._annualTotal||0).toLocaleString()}원 연간결제 하기`
+          : '💳 카드 등록 및 구독 시작하기';
+      }
+    });
+  </script>
+</body>
+</html>
