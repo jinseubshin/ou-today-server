@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>로그인 - O.U 오늘의 유정란</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script src="js/common.js"></script>
+</head>
+<body>
+
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <img src="https://www.genspark.ai/api/files/s/Fbqdj55M" alt="O.U 오늘의 유정란" style="height: 40px; width: auto; display: block; object-fit: contain; object-position: left center;">
+        <span class="logo-text">오늘의 유정란 <span style="color: var(--text-gray); font-size: 0.75em; font-weight: 500;">| 구독 서비스</span></span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="index.html">홈</a></li>
+          <li><a href="trial.html">체험팩</a></li>
+          <li><a href="subscribe.html">정기구독</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section style="min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 2rem; background: var(--light-bg);">
+    <div style="max-width: 450px; width: 100%; background: var(--white); border-radius: 16px; padding: 3rem 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+
+      <div style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-size: 2rem; font-weight: 800; color: var(--deep-green); margin-bottom: 0.5rem;">
+          회원가입 없이,<br>SNS 로그인으로 간편하게<br>시작하세요!
+        </h1>
+        <p style="font-size: 1rem; color: var(--text-gray); line-height: 1.6;">
+          정기구독 및 체험팩 신청을 위해 로그인해 주세요.
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 1rem;">
+        <button id="kakaoLogin" style="background: #FEE500; color: #000000; border: none; padding: 1rem; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.8rem; transition: opacity 0.2s; font-family: inherit;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="#000000">
+            <path d="M10 3C5.58172 3 2 5.79086 2 9.25C2 11.2991 3.23985 13.0659 5.1072 14.1421L4.38736 16.9508C4.31949 17.2126 4.60464 17.4169 4.83509 17.2644L8.18863 15.0986C8.77916 15.1957 9.38344 15.25 10 15.25C14.4183 15.25 18 12.4591 18 9C18 5.54086 14.4183 3 10 3Z"/>
+          </svg>
+          카카오로 시작하기
+        </button>
+      </div>
+
+      <div style="margin-top: 2rem; padding-top: 2rem; border-top: 1px solid var(--border-light); text-align: center;">
+        <p style="font-size: 0.9rem; color: var(--text-gray); line-height: 1.8; margin-bottom: 1rem;">
+          ✔ 회원가입 절차 없이 간편하게 시작<br>
+          ✔ SNS 계정으로 빠른 로그인<br>
+          ✔ 개인정보는 안전하게 보호됩니다
+        </p>
+        <p style="font-size: 0.85rem; color: var(--text-gray); line-height: 1.6;">
+          로그인 시 <a href="#" style="color: var(--deep-green); text-decoration: underline;">이용약관</a> 및 <a href="#" style="color: var(--deep-green); text-decoration: underline;">개인정보처리방침</a>에 동의하게 됩니다.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <script>
+    const KAKAO_REST_API_KEY = 'c4c25da779364681dc4df48c81060f34';
+    const KAKAO_REDIRECT_URI = 'https://26278d87-f8e1-4924-b0c5-d6ac5173f60d.vip.gensparksite.com/kakao-callback.html';
+
+    document.getElementById('kakaoLogin').addEventListener('click', function() {
+      window.location.href = 'https://kauth.kakao.com/oauth/authorize'
+        + '?client_id=' + KAKAO_REST_API_KEY
+        + '&redirect_uri=' + encodeURIComponent(KAKAO_REDIRECT_URI)
+        + '&response_type=code';
+    });
+
+    document.getElementById('kakaoLogin').addEventListener('mouseenter', function() {
+      this.style.opacity = '0.85';
+    });
+    document.getElementById('kakaoLogin').addEventListener('mouseleave', function() {
+      this.style.opacity = '1';
+    });
+  </script>
+
+</body>
+</html>
