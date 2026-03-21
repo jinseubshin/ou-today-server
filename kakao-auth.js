@@ -7,7 +7,7 @@
      7	
      8	// 카카오 REST API 키
      9	const KAKAO_REST_API_KEY = 'c4c25da779364681dc4df48c81060f34';
-    10	const KAKAO_REDIRECT_URI = 'https://fdrxhcpq.gensparkspace.com/kakao-callback.html';
+    10	const KAKAO_REDIRECT_URI = 'https://26278d87-f8e1-4924-b0c5-d6ac5173f60d.vip.gensparksite.com/kakao-callback.html';
     11	
     12	// ⭐ Flask API URL (실제 서버 주소로 변경 필요!)
     13	// 로컬 테스트: 'http://localhost:5000/api/auth/kakao'
