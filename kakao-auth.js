@@ -2,7 +2,7 @@
 // ⚠️ REST API 방식 ONLY - JavaScript SDK 사용 안 함!
 
 const KAKAO_REST_API_KEY = 'c4c25da779364681dc4df48c81060f34';
-const KAKAO_REDIRECT_URI = 'https://26278d87-f8e1-4924-b0c5-d6ac5173f60d.vip.gensparksite.com/kakao-callback.html';
+const KAKAO_REDIRECT_URI = 'https://ousubscription.netlify.app/kakao-callback.html';
 const FLASK_API_URL      = 'https://ou-today-server.onrender.com/api/auth/kakao';
 
 console.log('[Kakao Auth] REDIRECT_URI:', KAKAO_REDIRECT_URI);
