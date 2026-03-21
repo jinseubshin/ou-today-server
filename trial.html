@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>체험팩 신청 | O.U 오늘의 유정란</title>
+  <link rel="stylesheet" href="css/style.css">
+  <script src="https://js.tosspayments.com/v2/standard"></script>
+  <style>
+    .payment-container { min-height: 100vh; padding: 6rem 2rem 4rem; background: #FAFAFA; display: flex; align-items: center; justify-content: center; }
+    .payment-card { max-width: 600px; width: 100%; background: white; border-radius: 24px; padding: 3rem 2.5rem; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .payment-header { text-align: center; margin-bottom: 2.5rem; }
+    .trial-badge { display: inline-block; background: var(--warm-yellow); color: var(--text-dark); font-size: 0.85rem; font-weight: 700; padding: 0.4rem 1rem; border-radius: 20px; margin-bottom: 1rem; }
+    .payment-title { font-size: 2.2rem; font-weight: 900; color: var(--deep-green); margin-bottom: 0.8rem; }
+    .payment-subtitle { font-size: 1.1rem; color: var(--text-gray); }
+    .plan-summary { background: var(--light-bg); border-radius: 16px; padding: 2rem; margin-bottom: 2rem; }
+    .plan-summary h3 { font-size: 1.2rem; font-weight: 700; color: var(--deep-green); margin-bottom: 1.5rem; text-align: center; }
+    .summary-row { display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #e0e0e0; }
+    .summary-row:last-child { border-bottom: none; padding-top: 1.5rem; margin-top: 1rem; border-top: 2px solid var(--deep-green); }
+    .summary-label { font-weight: 600; color: var(--text-dark); }
+    .summary-value { font-weight: 700; color: var(--deep-green); }
+    .summary-value.total { font-size: 1.5rem; }
+
+    /* 입력 폼 */
+    .input-section { margin-bottom: 2rem; }
+    .input-section h3 { font-size: 1.1rem; font-weight: 700; color: var(--deep-green); margin-bottom: 1.2rem; }
+    .form-group { margin-bottom: 1.2rem; }
+    .form-group label { display: block; font-weight: 600; color: var(--text-dark); margin-bottom: 0.5rem; font-size: 0.95rem; }
+    .form-group input, .form-group textarea {
+      width: 100%; padding: 0.9rem 1.2rem; border: 2px solid #e0e0e0; border-radius: 12px;
+      font-size: 1rem; font-family: inherit; transition: border-color 0.2s; box-sizing: border-box;
+    }
+    .form-group input:focus, .form-group textarea:focus { outline: none; border-color: var(--deep-green); }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .form-row { display: flex; gap: 1rem; }
+    .form-row .form-group { flex: 1; }
+
+    .payment-info { background: #fff8e1; border-left: 4px solid var(--warm-yellow); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+    .payment-info p { color: var(--text-gray); line-height: 1.8; margin: 0; font-size: 0.95rem; }
+    .payment-button { width: 100%; padding: 1.5rem; font-size: 1.3rem; font-weight: 700; background: var(--warm-yellow); color: var(--text-dark); border: none; border-radius: 16px; cursor: pointer; transition: all 0.3s ease; margin-top: 1rem; }
+    .payment-button:hover { background: var(--deep-green); color: white; transform: translateY(-3px); box-shadow: 0 8px 20px rgba(0,0,0,0.2); }
+    .payment-button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+    .back-link { display: block; text-align: center; margin-top: 1.5rem; color: var(--text-gray); text-decoration: none; font-size: 0.95rem; }
+    .back-link:hover { color: var(--deep-green); }
+    @media (max-width: 768px) { .payment-card { padding: 2rem 1.5rem; } .payment-title { font-size: 1.8rem; } .form-row { flex-direction: column; gap: 0; } }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-container">
+      <a href="index.html" class="logo">
+        <img src="https://www.genspark.ai/api/files/s/Fbqdj55M" alt="O.U 오늘의 유정란" style="height: 40px; width: auto;">
+        <span class="logo-text">오늘의 유정란 <span style="color: var(--text-gray); font-size: 0.75em; font-weight: 500;">| 구독 서비스</span></span>
+      </a>
+      <nav>
+        <ul>
+          <li><a href="index.html">홈</a></li>
+          <li><a href="trial.html" class="active">체험팩</a></li>
+          <li><a href="subscription.html">정기구독</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <section class="payment-container">
+    <div class="payment-card">
+      <div class="payment-header">
+        <div class="trial-badge">🥚 1회 체험</div>
+        <h1 class="payment-title">체험팩 신청</h1>
+        <p class="payment-subtitle">신선한 유정란을 먼저 경험해보세요</p>
+      </div>
+
+      <!-- 상품 요약 -->
+      <div class="plan-summary">
+        <h3>📦 체험팩 구성</h3>
+        <div class="summary-row">
+          <span class="summary-label">구성</span>
+          <span class="summary-value">유정란 8구</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">배송비</span>
+          <span class="summary-value">포함</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">결제 방식</span>
+          <span class="summary-value">1회 단건 결제</span>
+        </div>
+        <div class="summary-row">
+          <span class="summary-label">결제 금액</span>
+          <span class="summary-value total">9,900원</span>
+        </div>
+      </div>
+
+      <!-- 배송 정보 입력 -->
+      <div class="input-section">
+        <h3>🚚 배송 정보</h3>
+        <div class="form-group">
+          <label for="recipientName">받는 분 이름 *</label>
+          <input type="text" id="recipientName" placeholder="홍길동">
+        </div>
+        <div class="form-group">
+          <label for="phone">연락처 *</label>
+          <input type="tel" id="phone" placeholder="010-0000-0000">
+        </div>
+        <div class="form-group">
+          <label for="address">배송 주소 *</label>
+          <input type="text" id="address" placeholder="도로명 주소를 입력해주세요">
+        </div>
+        <div class="form-group">
+          <label for="addressDetail">상세 주소</label>
+          <input type="text" id="addressDetail" placeholder="동/호수, 층 등">
+        </div>
+        <div class="form-group">
+          <label for="memo">배송 메모</label>
+          <textarea id="memo" placeholder="배송 시 요청사항을 입력해주세요 (선택)"></textarea>
+        </div>
+      </div>
+
+      <div class="payment-info">
+        <p>
+          🥚 <strong>체험팩 안내</strong><br>
+          · 신선한 유정란 8구 + 배송비 포함 9,900원<br>
+          · 주문 후 1~3 영업일 내 발송됩니다.<br>
+          · 1회 단건 결제이며 자동 결제되지 않습니다.<br>
+          · 체험 후 정기구독 시 첫 달 10% 할인 혜택!
+        </p>
+      </div>
+
+      <button id="paymentButton" class="payment-button">
+        🥚 9,900원 결제하기
+      </button>
+
+      <a href="index.html" class="back-link">← 홈으로 돌아가기</a>
+    </div>
+  </section>
+
+  <script>
+    const TOSS_CLIENT_KEY = "live_ck_26DlbXAaV0LpJjlenQJzVqY50Q9R"; // 실제 키로 교체
+    const BACKEND_URL = "https://ou-today-server.onrender.com";
+
+    window.addEventListener('load', function() {
+      if (localStorage.getItem('isLoggedIn') !== 'true') {
+        localStorage.setItem('postLoginRedirect', 'trial.html');
+        alert('로그인이 필요합니다.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // 이름/연락처 자동완성
+      const userName = localStorage.getItem('user_nickname') || localStorage.getItem('user_name') || '';
+      if (userName && userName !== 'null') {
+        document.getElementById('recipientName').value = userName;
+      }
+    });
+
+    function validateForm() {
+      const name    = document.getElementById('recipientName').value.trim();
+      const phone   = document.getElementById('phone').value.trim();
+      const address = document.getElementById('address').value.trim();
+
+      if (!name)    { alert('받는 분 이름을 입력해주세요.'); return false; }
+      if (!phone)   { alert('연락처를 입력해주세요.'); return false; }
+      if (!address) { alert('배송 주소를 입력해주세요.'); return false; }
+      return true;
+    }
+
+    document.getElementById('paymentButton').addEventListener('click', async function() {
+      if (!validateForm()) return;
+
+      this.disabled = true;
+      this.textContent = '결제창 열기 중...';
+
+      const kakaoId = localStorage.getItem('kakao_id') || 'guest';
+      const orderId = `trial-${kakaoId}-${Date.now()}`;
+
+      // 배송 정보 저장 (confirm 페이지에서 백엔드 전송용)
+      const trialData = {
+        orderId,
+        amount: 9900,
+        orderName: 'O.U 유정란 체험팩 8구',
+        delivery: {
+          name:    document.getElementById('recipientName').value.trim(),
+          phone:   document.getElementById('phone').value.trim(),
+          address: document.getElementById('address').value.trim() + ' ' + document.getElementById('addressDetail').value.trim(),
+          memo:    document.getElementById('memo').value.trim()
+        }
+      };
+      localStorage.setItem('ou_trial_data', JSON.stringify(trialData));
+
+      try {
+        const tossPayments = TossPayments(TOSS_CLIENT_KEY);
+        const payment = tossPayments.payment({ customerKey: `ou_trial_${kakaoId}` });
+
+        await payment.requestPayment({
+          method: '카드',
+          amount: { currency: 'KRW', value: 9900 },
+          orderId,
+          orderName: 'O.U 유정란 체험팩 8구',
+          successUrl: window.location.origin + '/trial-complete.html',
+          failUrl:    window.location.origin + '/trial-fail.html',
+          customerEmail: localStorage.getItem('user_email') || '',
+          customerName:  document.getElementById('recipientName').value.trim(),
+        });
+
+      } catch (error) {
+        console.error('결제 오류:', error);
+        if (error.code !== 'USER_CANCEL') {
+          alert('결제 진행 중 오류가 발생했습니다.\n다시 시도해주세요.');
+        }
+        this.disabled = false;
+        this.textContent = '🥚 9,900원 결제하기';
+      }
+    });
+  </script>
+</body>
+</html>
