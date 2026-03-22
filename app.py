@@ -23,7 +23,11 @@ CORS(app, resources={
 KAKAO_REST_API_KEY  = "c4c25da779364681dc4df48c81060f34"
 KAKAO_CLIENT_SECRET = "0coRrzVaDtECJE7rW9ImjzYpX3FnuaRz"
 
-TOSS_SECRET_KEY    = os.environ.get("TOSS_SECRET_KEY", "")
+# ✅ 단건결제(체험팩, 연간) - gfdrxhmg0a MID
+TOSS_SECRET_KEY         = os.environ.get("TOSS_SECRET_KEY", "")
+# ✅ 빌링결제(월간구독) - bill_gfdrxyjhx MID
+TOSS_BILLING_SECRET_KEY = os.environ.get("TOSS_BILLING_SECRET_KEY", TOSS_SECRET_KEY)
+
 TOSS_BILLING_URL   = "https://api.tosspayments.com/v1/billing/authorizations/issue"
 TOSS_PAYMENT_URL   = "https://api.tosspayments.com/v1/billing"
 TOSS_CONFIRM_URL   = "https://api.tosspayments.com/v1/payments/confirm"
@@ -107,7 +111,7 @@ def kakao_login():
 
 
 # ========================================
-# 구독 등록
+# 구독 등록 (월간 빌링 - TOSS_BILLING_SECRET_KEY 사용)
 # ========================================
 @app.route('/api/subscription/register', methods=['POST', 'OPTIONS'])
 def register_subscription():
@@ -127,11 +131,12 @@ def register_subscription():
         user_name        = data.get('userName', '고객')
         user_email       = data.get('userEmail', '')
 
-        secret_b64 = base64.b64encode(f"{TOSS_SECRET_KEY}:".encode()).decode()
+        # ✅ 빌링용 시크릿키 사용
+        billing_secret_b64 = base64.b64encode(f"{TOSS_BILLING_SECRET_KEY}:".encode()).decode()
         billing_res = requests.post(
             TOSS_BILLING_URL,
             json={"authKey": auth_key, "customerKey": customer_key},
-            headers={"Authorization": f"Basic {secret_b64}", "Content-Type": "application/json"}
+            headers={"Authorization": f"Basic {billing_secret_b64}", "Content-Type": "application/json"}
         )
         billing_data = billing_res.json()
         print(f"[Toss Billing] {billing_data}")
@@ -151,7 +156,7 @@ def register_subscription():
                 "customerEmail": user_email,
                 "customerName":  user_name
             },
-            headers={"Authorization": f"Basic {secret_b64}", "Content-Type": "application/json"}
+            headers={"Authorization": f"Basic {billing_secret_b64}", "Content-Type": "application/json"}
         )
         payment_data = payment_res.json()
         print(f"[Toss Payment] {payment_data}")
@@ -204,7 +209,7 @@ def register_subscription():
 
 
 # ========================================
-# 단건 결제 Confirm (체험팩 + 연간구독 공통)
+# 단건 결제 Confirm (체험팩 + 연간구독 - TOSS_SECRET_KEY 사용)
 # ========================================
 @app.route('/api/payment/confirm-onetime', methods=['POST', 'OPTIONS'])
 def confirm_onetime_payment():
@@ -228,6 +233,7 @@ def confirm_onetime_payment():
         if not payment_key or not order_id or not amount:
             return jsonify({"error": "필수 파라미터 누락"}), 400
 
+        # ✅ 단건결제용 시크릿키 사용
         secret_b64  = base64.b64encode(f"{TOSS_SECRET_KEY}:".encode()).decode()
         confirm_res = requests.post(
             TOSS_CONFIRM_URL,
@@ -336,7 +342,7 @@ def health_check():
 # 네이버 로그인
 # ========================================
 NAVER_CLIENT_ID     = "QwT0sDitiiCijlC5_KxB"
-NAVER_CLIENT_SECRET = "f8thiPUdJD"
+NAVER_CLIENT_SECRET = os.environ.get("NAVER_CLIENT_SECRET", "f8thiPUdJD")
 NAVER_TOKEN_URL     = "https://nid.naver.com/oauth2.0/token"
 NAVER_USER_INFO_URL = "https://openapi.naver.com/v1/nid/me"
 
